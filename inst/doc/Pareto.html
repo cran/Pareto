@@ -13,7 +13,7 @@
 
 <meta name="author" content="Ulrich Riegel" />
 
-<meta name="date" content="2019-12-16" />
+<meta name="date" content="2020-02-13" />
 
 <title>Pareto Package Vignette</title>
 
@@ -304,7 +304,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Pareto Package Vignette</h1>
 <h4 class="author">Ulrich Riegel</h4>
-<h4 class="date">2019-12-16</h4>
+<h4 class="date">2020-02-13</h4>
 
 
 
@@ -345,9 +345,9 @@ F_{t,\alpha}(x):=\begin{cases}
 <div id="simulation" class="section level3">
 <h3>Simulation:</h3>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">rPareto</span>(<span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">2</span>)</a></code></pre></div>
-<pre><code>##  [1] 5566.482 1263.256 1313.422 1117.263 1024.952 2223.715 1700.941
-##  [8] 2004.082 2518.877 1470.087 2852.005 4509.789 1292.609 1259.047
-## [15] 4043.421 1199.041 1866.402 1779.711 3213.213 1770.159</code></pre>
+<pre><code>##  [1] 1573.415 1174.269 1878.197 1171.498 3491.085 1011.470 1571.208
+##  [8] 1130.585 4711.815 2592.164 2545.542 1787.531 1861.684 1143.625
+## [15] 1406.715 2279.169 3571.779 1012.782 1059.960 1021.693</code></pre>
 </div>
 <div id="layer-mean" class="section level3">
 <h3>Layer mean:</h3>
@@ -436,6 +436,16 @@ f_2 = f_1 \cdot \left(\frac{t_1}{t_2}\right)^\alpha
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">Pareto_Find_Alpha_btw_FQs</span>(t_<span class="dv">1</span>, f_<span class="dv">1</span>, t_<span class="dv">2</span>, f_<span class="dv">2</span>)</a></code></pre></div>
 <pre><code>## [1] 2.5</code></pre>
 </div>
+<div id="maximum-likelihood-estimation-of-the-parameter-alpha" class="section level3">
+<h3>Maximum likelihood estimation of the parameter alpha</h3>
+<p>For <span class="math inline">\(i=1,\dots,n\)</span> let <span class="math inline">\(X_i\sim \text{Pareto}(t_i,\alpha)\)</span> be Pareto distributed observations. Then we have the ML estimator <span class="math display">\[
+\hat{\alpha}^{ML}=\frac{n}{\sum_{i=1}^n\log(X_i/t_i)}.
+\]</span> <em>Example:</em></p>
+<p>Pareto distributed losses with a reporting threshold of <span class="math inline">\(t=100\)</span> and <span class="math inline">\(\alpha = 2\)</span>:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPareto</span>(<span class="dv">1000</span>, <span class="dt">t =</span> <span class="dv">100</span>, <span class="dt">alpha =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="kw">Pareto_ML_Estimator_Alpha</span>(losses, <span class="dt">t =</span> <span class="dv">100</span>)</a></code></pre></div>
+<pre><code>## [1] 1.972867</code></pre>
+</div>
 <div id="truncation" class="section level3">
 <h3>Truncation</h3>
 <p>Let <span class="math inline">\(X\sim \text{Pareto}(t,\alpha)\)</span> and <span class="math inline">\(T&gt;t\)</span>. Then <span class="math inline">\(X|(X&gt;T)\)</span> has a <em>truncated Pareto distribution</em>. The Pareto functions mentioned above are also available for the truncated Pareto distribution.</p>
@@ -455,39 +465,48 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>The Pareto package also provides functions for the piecewise Pareto distribution. For instance:</p>
 <div id="distribution-function" class="section level3">
 <h3>Distribution function</h3>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) <span class="op">*</span><span class="st"> </span><span class="dv">1000</span></a>
-<a class="sourceLine" id="cb33-2" title="2">t &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>, <span class="dv">3000</span>, <span class="dv">4000</span>)</a>
-<a class="sourceLine" id="cb33-3" title="3">alpha &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">20</span>)</a>
-<a class="sourceLine" id="cb33-4" title="4"><span class="kw">pPiecewisePareto</span>(x, t, alpha)</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) <span class="op">*</span><span class="st"> </span><span class="dv">1000</span></a>
+<a class="sourceLine" id="cb35-2" title="2">t &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>, <span class="dv">3000</span>, <span class="dv">4000</span>)</a>
+<a class="sourceLine" id="cb35-3" title="3">alpha &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">20</span>)</a>
+<a class="sourceLine" id="cb35-4" title="4"><span class="kw">pPiecewisePareto</span>(x, t, alpha)</a></code></pre></div>
 <pre><code>##  [1] 0.0000000 0.7500000 0.8333333 0.9296875 0.9991894 0.9999789 0.9999990
 ##  [8] 0.9999999 1.0000000 1.0000000</code></pre>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">plot</span>(<span class="kw">pPiecewisePareto</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>, t, alpha), <span class="dt">xlab =</span> <span class="st">&quot;x&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;CDF(x)&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1"><span class="kw">plot</span>(<span class="kw">pPiecewisePareto</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>, t, alpha), <span class="dt">xlab =</span> <span class="st">&quot;x&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;CDF(x)&quot;</span>)</a></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 <div id="density" class="section level3">
 <h3>Density</h3>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">dPiecewisePareto</span>(x, t, alpha)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">dPiecewisePareto</span>(x, t, alpha)</a></code></pre></div>
 <pre><code>##  [1] 0.000000e+00 1.250000e-04 1.666667e-04 3.515625e-04 3.242592e-06
 ##  [6] 7.048328e-08 2.768239e-09 1.676381e-10 1.413089e-11 1.546188e-12</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">plot</span>(<span class="kw">dPiecewisePareto</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>, t, alpha), <span class="dt">xlab =</span> <span class="st">&quot;x&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;PDF(x)&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">plot</span>(<span class="kw">dPiecewisePareto</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>, t, alpha), <span class="dt">xlab =</span> <span class="st">&quot;x&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;PDF(x)&quot;</span>)</a></code></pre></div>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAXVBMVEUAAAAAADoAAGYAOpAAZrY6AAA6ADo6kNtmAABmADpmAGZmOpBmZmZmtttmtv+QOgCQOmaQZgCQ2/+2ZgC2/7a2///bkDrb2//b/9vb////tmb/25D//7b//9v////szdJ9AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAHGklEQVR4nO2d23acOBBFiZ1MnLmkZ9IJM0Pc/P9nhrvBNDq6lChJffZDFlmtKsG2ECoM7aolRirtHUgdCgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEEBZUZYOWIKtG9rsXjZQFOf0AY5GwIMchHomTBbmc2g8pyCUdBaEm5Qp6ffnc/dt0R/f0wz9d6YLq5//7ra/e6QoXNKkZNPmlK1zQz0+DoObgJLMXpGwo/RFUpqD+wD6283Ttl65gQe3g6MO37kJ24Me+1ChVkEQ6CkJtKAi0oSDQplhB41VsxH8dVLCg9nY5LMIc0iVxnY90it0uH8PTlSyoWwEdVKkO6YoWJJKOglAjCgKNyhV0uxgv8g8vqJ6L1MNq1UWQqqEogm6XRUvA/aCCBa3uRAfcUSxYkNQISmESijUHTUPo/Rz0VqPZdVqqoKVcPRg/ZY+gZtptcy0h0m+GgrqhMZWh3VIHlezB/SYwSzsKev197WT7vzUyC8UMBVkitFDMU9DtX9hW7DKfwCTkLuj1ZZyEbn8fzkBSC8U8BXWnzYdv/Vl0PEU/9giaZ+Cj35n2HC4UXfvVn4S8JunekHkVJLRQzFTQtar+uhwfu2S/OQrqBsf4gF3AMtG+3xwF/TEOHcNVbEUddhXLUdC5/aqfY5FKDbF+cxN0crGaoaDW7naHULHa6k9CaRerbaGC5EoN/XPMdZI+enJ+g1yxmqeg1QC5z6OPIChIrlht1SehOILEitVWfQhFEiTXLwXBlg8lqKrcjzczQW+HeMrtjlZ7CKVezbcUhJtmJmg8y8JuuLr5zkvQdVwD1sbfagj22yoPIVdBTf87sZ7pndTo/bZ5CVq9YnAFLxsI9dvmJWj1DurR7XjhfofGiob8b3cc3cgQ7ndoTEGgMQWh1nqGKAh17dZQoxZrVzVuQI+eZFBqDM0pCDTPR1BdBT4h7djv3F7LkKuguis1AqsMt37n9pkIGm8mHv0uJ0a/c3stQ16X+bArvFu/SwAFgQAlQ9kI0hpC+Qk62VA+gpSGUB6lxhiiYiiTlfQYo2HoZEFVyEE+gqCwdBqGIgmSe4hzG3W+oTiCBB/i3EadbyiKIMlH8N6FCRqySxJFkORDnO/jxAxZJslsBMkZsk0Saw6Se4hzFyljSFeQ5EOc+1ARQ8qCoqarJBTZZshRkIghZUGRFopLdLgh2wR5LRTfwk8bQtld5ud4MUEgQ24LxbcE8PDQ0SsKOmEEzceHPjc0sRtC+S0UVzlMh1dtMDcxdmK9N7YNB2IuFJcURgPVnuMmpl6sd8e24Vnp7hhYH+r9j7cybAyVJsiBbY7gHU1qoThkEACcpk47mtZCcUgRA/8djXGZ99nhdQ6b+FBbmgtF65007JXVMZo+R9GKI8jKj919Y4togwJj+MkLxU3XYoL22Q+D732uIMhqoSgvaNuDMXab+3xBVumi+nHeoYPOVReKCflp7+3PsqNWwU5dnbBQPAm1hWI2xBBkcZm3Sxp2Mytu9pDm1u8EPaogjiAEvqNol7RYQXihaJe0XEFCSSko7PMSBJnfrqegwKQPL6gkKAggXKyWh3CxWh5RSo2SiFKslgRHECBKsVoSUYrVkuA6CEBBAAoCUBBAXlBTVfO3Vtox1C+fN6H7DTPX4arhHW5CXFD/nZ6Ny17dLl3ruv/DMEvofgP0OVxWvcONSAsaF5MuX+c5fm1R/fRjCd1vmOkWH50g73Az0oKWw3WM637QS+h+wxxbP//TCfIONyMu6Ld+RLuXatfueObQ/Qbqsp+DfMMB0oLGU975xO9rlyV0v2EK7U+kXpBnOCINQc08R3scYV83ZyTIa1iPta/fOTK0yegU85kYpxuVfrNsPT3O8jWTSdrj0jrfRAm4Tl/zucy7L85+fprvLfmv9K75LBSHMe+0T9M5Mv6h6Sl0v2FmLDW8w02wWAVQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQFSF9Q/H/b6ovh2WuqC+qfEVF9vTF1Q2zx9/xL4DFQQyQtqr1XYQ4aBpC+okfgj3f4kL+h2+VP1FfTkBdXP/100X7FOXVD/ZQaq32KQuqDxEXHFaTp1QepQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEGAX1Dtb/Bn7oIcAAAAAElFTkSuQmCC" /><!-- --></p>
 </div>
 <div id="simulation-1" class="section level3">
 <h3>Simulation</h3>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">rPiecewisePareto</span>(<span class="dv">20</span>, t, alpha)</a></code></pre></div>
-<pre><code>##  [1] 4090.034 1968.710 1296.789 1831.201 1085.488 1574.158 1077.512
-##  [8] 1026.085 3221.041 2464.804 1380.327 1088.561 4062.242 1122.533
-## [15] 3304.994 3406.076 1371.231 1430.673 1741.127 1583.275</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">rPiecewisePareto</span>(<span class="dv">20</span>, t, alpha)</a></code></pre></div>
+<pre><code>##  [1] 2602.478 4497.382 1374.661 1335.906 1431.088 4215.515 1280.777
+##  [8] 1545.467 3393.917 3182.925 1027.906 1395.319 1039.414 2099.335
+## [15] 1298.870 1021.383 1668.504 1641.803 2297.529 1013.577</code></pre>
 </div>
 <div id="layer-mean-1" class="section level3">
 <h3>Layer mean</h3>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, t, alpha)</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, t, alpha)</a></code></pre></div>
 <pre><code>## [1] 826.6969</code></pre>
 </div>
 <div id="layer-variance-1" class="section level3">
 <h3>Layer variance</h3>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">PiecewisePareto_Layer_Var</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, t, alpha)</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">PiecewisePareto_Layer_Var</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, t, alpha)</a></code></pre></div>
 <pre><code>## [1] 922221.2</code></pre>
+</div>
+<div id="maximum-likelihood-estimation-of-the-alphas" class="section level3">
+<h3>Maximum likelihood estimation of the alphas</h3>
+<p>Let <span class="math inline">\(\mathbf{t}:=(t_1,\dots,t_n)\)</span> be a vector of thresholds and let <span class="math inline">\(\boldsymbol\alpha:=(\alpha_1,\dots,\alpha_n)\)</span> be a vector of Pareto alphas. For <span class="math inline">\(i=1,\dots,n\)</span> let <span class="math inline">\(X_i\sim \text{PPareto}(\mathbf{t},\boldsymbol\alpha)\)</span>. If the vector <span class="math inline">\(\mathbf{t}\)</span> is known, then the parameter vector <span class="math inline">\(\boldsymbol\alpha\)</span> can be estimated with maximum likelihood.</p>
+<p><em>Example:</em></p>
+<p>Piecewise Pareto distributed losses with <span class="math inline">\(\mathbf{t}:=(100,\,200,\, 300)\)</span> and <span class="math inline">\(\boldsymbol\alpha:=(1,\, 2,\, 3)\)</span>:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPiecewisePareto</span>(<span class="dv">10000</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb47-2" title="2"><span class="kw">PiecewisePareto_ML_Estimator_Alpha</span>(losses, <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>))</a></code></pre></div>
+<pre><code>## [1] 0.9776396 2.0170878 2.8710479</code></pre>
 </div>
 <div id="truncation-1" class="section level3">
 <h3>Truncation</h3>
@@ -555,10 +574,10 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 </table>
 <p>The Pareto package provides a more complex matching approach that uses two Pareto pieces per layer. Riegel (2018) shows that this approach works for an arbitrary number of layers with consistent expected losses.</p>
 <p><em>Example:</em></p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1">attachment_points &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">1500</span>, <span class="dv">2000</span>, <span class="dv">2500</span>, <span class="dv">3000</span>)</a>
-<a class="sourceLine" id="cb45-2" title="2">exp_losses &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">90</span>, <span class="dv">50</span>, <span class="dv">40</span>, <span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb45-3" title="3">fit &lt;-<span class="st"> </span><span class="kw">PiecewisePareto_Match_Layer_Losses</span>(attachment_points, exp_losses)</a>
-<a class="sourceLine" id="cb45-4" title="4">fit</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1">attachment_points &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">1500</span>, <span class="dv">2000</span>, <span class="dv">2500</span>, <span class="dv">3000</span>)</a>
+<a class="sourceLine" id="cb49-2" title="2">exp_losses &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">90</span>, <span class="dv">50</span>, <span class="dv">40</span>, <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb49-3" title="3">fit &lt;-<span class="st"> </span><span class="kw">PiecewisePareto_Match_Layer_Losses</span>(attachment_points, exp_losses)</a>
+<a class="sourceLine" id="cb49-4" title="4">fit</a></code></pre></div>
 <pre><code>## $t
 ## [1] 1000.000 1500.000 1932.059 2000.000 2147.531 2500.000 2847.756 3000.000
 ## 
@@ -572,11 +591,11 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 ## $FQ
 ## [1] 0.2136971</code></pre>
 <p>Check:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">c</span>(<span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">1000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
-<a class="sourceLine" id="cb47-2" title="2">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">1500</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
-<a class="sourceLine" id="cb47-3" title="3">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">2000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
-<a class="sourceLine" id="cb47-4" title="4">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">2500</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
-<a class="sourceLine" id="cb47-5" title="5">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="ot">Inf</span>, <span class="dv">3000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ)</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">c</span>(<span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">1000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
+<a class="sourceLine" id="cb51-2" title="2">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">1500</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
+<a class="sourceLine" id="cb51-3" title="3">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">2000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
+<a class="sourceLine" id="cb51-4" title="4">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">2500</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
+<a class="sourceLine" id="cb51-5" title="5">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="ot">Inf</span>, <span class="dv">3000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ)</a></code></pre></div>
 <pre><code>## [1] 100  90  50  40 100</code></pre>
 </div>
 <div id="references" class="section level2">
