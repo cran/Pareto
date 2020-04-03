@@ -13,7 +13,7 @@
 
 <meta name="author" content="Ulrich Riegel" />
 
-<meta name="date" content="2020-02-13" />
+<meta name="date" content="2020-04-03" />
 
 <title>Pareto Package Vignette</title>
 
@@ -304,7 +304,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Pareto Package Vignette</h1>
 <h4 class="author">Ulrich Riegel</h4>
-<h4 class="date">2020-02-13</h4>
+<h4 class="date">2020-04-03</h4>
 
 
 
@@ -345,9 +345,9 @@ F_{t,\alpha}(x):=\begin{cases}
 <div id="simulation" class="section level3">
 <h3>Simulation:</h3>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">rPareto</span>(<span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">2</span>)</a></code></pre></div>
-<pre><code>##  [1] 1573.415 1174.269 1878.197 1171.498 3491.085 1011.470 1571.208
-##  [8] 1130.585 4711.815 2592.164 2545.542 1787.531 1861.684 1143.625
-## [15] 1406.715 2279.169 3571.779 1012.782 1059.960 1021.693</code></pre>
+<pre><code>##  [1] 1069.883 1226.808 1070.066 2441.235 1727.387 1197.475 1410.243
+##  [8] 1426.691 1493.052 1264.147 1156.218 1061.947 1733.017 1283.406
+## [15] 1433.116 1351.829 1054.235 1003.015 1189.447 1208.854</code></pre>
 </div>
 <div id="layer-mean" class="section level3">
 <h3>Layer mean:</h3>
@@ -444,7 +444,7 @@ f_2 = f_1 \cdot \left(\frac{t_1}{t_2}\right)^\alpha
 <p>Pareto distributed losses with a reporting threshold of <span class="math inline">\(t=100\)</span> and <span class="math inline">\(\alpha = 2\)</span>:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPareto</span>(<span class="dv">1000</span>, <span class="dt">t =</span> <span class="dv">100</span>, <span class="dt">alpha =</span> <span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb33-2" title="2"><span class="kw">Pareto_ML_Estimator_Alpha</span>(losses, <span class="dt">t =</span> <span class="dv">100</span>)</a></code></pre></div>
-<pre><code>## [1] 1.972867</code></pre>
+<pre><code>## [1] 1.972281</code></pre>
 </div>
 <div id="truncation" class="section level3">
 <h3>Truncation</h3>
@@ -485,9 +485,9 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <div id="simulation-1" class="section level3">
 <h3>Simulation</h3>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">rPiecewisePareto</span>(<span class="dv">20</span>, t, alpha)</a></code></pre></div>
-<pre><code>##  [1] 2602.478 4497.382 1374.661 1335.906 1431.088 4215.515 1280.777
-##  [8] 1545.467 3393.917 3182.925 1027.906 1395.319 1039.414 2099.335
-## [15] 1298.870 1021.383 1668.504 1641.803 2297.529 1013.577</code></pre>
+<pre><code>##  [1] 1154.620 1527.895 1478.414 1579.710 1327.515 1236.439 1075.098
+##  [8] 1321.882 1738.836 4103.994 1850.759 1642.031 1774.668 1670.843
+## [15] 3852.271 1051.340 1845.775 3890.973 1378.889 1132.315</code></pre>
 </div>
 <div id="layer-mean-1" class="section level3">
 <h3>Layer mean</h3>
@@ -506,7 +506,7 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>Piecewise Pareto distributed losses with <span class="math inline">\(\mathbf{t}:=(100,\,200,\, 300)\)</span> and <span class="math inline">\(\boldsymbol\alpha:=(1,\, 2,\, 3)\)</span>:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPiecewisePareto</span>(<span class="dv">10000</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</a>
 <a class="sourceLine" id="cb47-2" title="2"><span class="kw">PiecewisePareto_ML_Estimator_Alpha</span>(losses, <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>))</a></code></pre></div>
-<pre><code>## [1] 0.9776396 2.0170878 2.8710479</code></pre>
+<pre><code>## [1] 1.017926 2.027558 2.902659</code></pre>
 </div>
 <div id="truncation-1" class="section level3">
 <h3>Truncation</h3>
