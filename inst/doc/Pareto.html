@@ -13,7 +13,7 @@
 
 <meta name="author" content="Ulrich Riegel" />
 
-<meta name="date" content="2020-04-03" />
+<meta name="date" content="2020-05-02" />
 
 <title>Pareto Package Vignette</title>
 
@@ -304,7 +304,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Pareto Package Vignette</h1>
 <h4 class="author">Ulrich Riegel</h4>
-<h4 class="date">2020-04-03</h4>
+<h4 class="date">2020-05-02</h4>
 
 
 
@@ -345,9 +345,9 @@ F_{t,\alpha}(x):=\begin{cases}
 <div id="simulation" class="section level3">
 <h3>Simulation:</h3>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">rPareto</span>(<span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">2</span>)</a></code></pre></div>
-<pre><code>##  [1] 1069.883 1226.808 1070.066 2441.235 1727.387 1197.475 1410.243
-##  [8] 1426.691 1493.052 1264.147 1156.218 1061.947 1733.017 1283.406
-## [15] 1433.116 1351.829 1054.235 1003.015 1189.447 1208.854</code></pre>
+<pre><code>##  [1] 1292.948 1478.997 1264.428 2213.742 3244.998 4321.080 2862.727
+##  [8] 1069.437 2116.547 3158.694 1605.736 1221.685 1437.802 2633.073
+## [15] 1813.905 1022.537 2928.294 1070.701 1056.264 2146.440</code></pre>
 </div>
 <div id="layer-mean" class="section level3">
 <h3>Layer mean:</h3>
@@ -444,7 +444,7 @@ f_2 = f_1 \cdot \left(\frac{t_1}{t_2}\right)^\alpha
 <p>Pareto distributed losses with a reporting threshold of <span class="math inline">\(t=100\)</span> and <span class="math inline">\(\alpha = 2\)</span>:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPareto</span>(<span class="dv">1000</span>, <span class="dt">t =</span> <span class="dv">100</span>, <span class="dt">alpha =</span> <span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb33-2" title="2"><span class="kw">Pareto_ML_Estimator_Alpha</span>(losses, <span class="dt">t =</span> <span class="dv">100</span>)</a></code></pre></div>
-<pre><code>## [1] 1.972281</code></pre>
+<pre><code>## [1] 2.048619</code></pre>
 </div>
 <div id="truncation" class="section level3">
 <h3>Truncation</h3>
@@ -485,9 +485,9 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <div id="simulation-1" class="section level3">
 <h3>Simulation</h3>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">rPiecewisePareto</span>(<span class="dv">20</span>, t, alpha)</a></code></pre></div>
-<pre><code>##  [1] 1154.620 1527.895 1478.414 1579.710 1327.515 1236.439 1075.098
-##  [8] 1321.882 1738.836 4103.994 1850.759 1642.031 1774.668 1670.843
-## [15] 3852.271 1051.340 1845.775 3890.973 1378.889 1132.315</code></pre>
+<pre><code>##  [1] 1300.638 3448.499 1066.498 1057.231 1011.667 1017.480 1611.076
+##  [8] 1043.258 1830.830 2851.443 2407.847 1088.753 1080.614 1168.941
+## [15] 1225.730 1891.538 1133.505 1782.926 1551.437 1082.830</code></pre>
 </div>
 <div id="layer-mean-1" class="section level3">
 <h3>Layer mean</h3>
@@ -506,11 +506,11 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>Piecewise Pareto distributed losses with <span class="math inline">\(\mathbf{t}:=(100,\,200,\, 300)\)</span> and <span class="math inline">\(\boldsymbol\alpha:=(1,\, 2,\, 3)\)</span>:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPiecewisePareto</span>(<span class="dv">10000</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</a>
 <a class="sourceLine" id="cb47-2" title="2"><span class="kw">PiecewisePareto_ML_Estimator_Alpha</span>(losses, <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>))</a></code></pre></div>
-<pre><code>## [1] 1.017926 2.027558 2.902659</code></pre>
+<pre><code>## [1] 0.9910559 1.9980430 2.9472604</code></pre>
 </div>
 <div id="truncation-1" class="section level3">
 <h3>Truncation</h3>
-<p>The package also provides truncated versions of the piecewise Pareto distribution. In most functions there are two options available:</p>
+<p>The package also provides truncated versions of the piecewise Pareto distribution. There are two options available:</p>
 <ul>
 <li><code>truncation_type = &#39;lp&#39;</code>: Below the largest threshold <span class="math inline">\(t_n\)</span>, the distribution function equals the distribution of the piecewise Pareto distribution without truncation. The last Pareto piece, however, is truncated at <code>truncation</code></li>
 <li><code>truncation_type = &#39;wd&#39;</code>: The whole piecewise Pareto distribution is truncated at `truncation’</li>
@@ -578,25 +578,105 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <a class="sourceLine" id="cb49-2" title="2">exp_losses &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">90</span>, <span class="dv">50</span>, <span class="dv">40</span>, <span class="dv">100</span>)</a>
 <a class="sourceLine" id="cb49-3" title="3">fit &lt;-<span class="st"> </span><span class="kw">PiecewisePareto_Match_Layer_Losses</span>(attachment_points, exp_losses)</a>
 <a class="sourceLine" id="cb49-4" title="4">fit</a></code></pre></div>
-<pre><code>## $t
-## [1] 1000.000 1500.000 1932.059 2000.000 2147.531 2500.000 2847.756 3000.000
+<pre><code>## 
+## Panjer &amp; Piecewise Pareto model
 ## 
-## $alpha
-## [1] 0.3091209 0.1753613 9.6851892 3.5385336 0.8173980 0.7663698 5.0868280
-## [8] 2.8454880
+## Collective model with a Poisson distribution for the claim count and a Piecewise Pareto distributed severity.
 ## 
-## $Status
-## [1] &quot;OK.&quot;
+## Poisson Distribution:
+## Expected Frequency:   0.2136971
 ## 
-## $FQ
-## [1] 0.2136971</code></pre>
-<p>Check:</p>
+## Piecewise Pareto Distribution:
+## Thresholds:         1000   1500   1932.059   2000   2147.531   2500   2847.756   3000
+## Alphas:              0.3091209   0.1753613   9.685189   3.538534   0.817398   0.7663698   5.086828   2.845488
+## The distribution is not truncated.
+## 
+## Status:               0
+## Comments:             OK</code></pre>
+<p>The function <code>PiecewisePareto_Match_Layer_Losses</code> returns a <code>PPP_Model</code> object (PPP stands for Panjer &amp; Piecewise Pareto) which contains the information required to specify a collective model with a Panjer distributed claim count and a piecewise Pareto distributed severity. The results can be checked using the attributes <code>FQ</code>, <code>t</code> and <code>alpha</code> of the object:</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">c</span>(<span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">1000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
 <a class="sourceLine" id="cb51-2" title="2">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">1500</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
 <a class="sourceLine" id="cb51-3" title="3">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">2000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
 <a class="sourceLine" id="cb51-4" title="4">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="dv">500</span>, <span class="dv">2500</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ,</a>
 <a class="sourceLine" id="cb51-5" title="5">  <span class="kw">PiecewisePareto_Layer_Mean</span>(<span class="ot">Inf</span>, <span class="dv">3000</span>, fit<span class="op">$</span>t, fit<span class="op">$</span>alpha) <span class="op">*</span><span class="st"> </span>fit<span class="op">$</span>FQ)</a></code></pre></div>
 <pre><code>## [1] 100  90  50  40 100</code></pre>
+<p>There are, however, functions which can directly use PPP_Models:</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1">covers &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">diff</span>(attachment_points), <span class="ot">Inf</span>)</a>
+<a class="sourceLine" id="cb53-2" title="2"><span class="kw">PPP_Model_Exp_Layer_Loss</span>(covers, attachment_points, fit)</a></code></pre></div>
+<pre><code>## [1] 100  90  50  40 100</code></pre>
+</div>
+<div id="ppp_models-panjer-piecewise-pareto-models" class="section level2">
+<h2>PPP_Models (Panjer &amp; Piecewise Pareto Models)</h2>
+<p>A <code>PPP_Model</code> object contains the information required to specify a collective model with a Panjer distributed claim count and a piecewise Pareto distributed severity.</p>
+<p><strong>Claim count distribution:</strong> The Panjer class contains the binomial distribution, the Poisson distribution and the negative binomial distribution. The distribution of the claim count <span class="math inline">\(N\)</span> is specified by the expected frequency <span class="math inline">\(E(N)\)</span> (attribute <code>FQ</code> of the object) and the dispersion <span class="math inline">\(D(N):=Var(N)/E(N)\)</span> (attribute <code>dispersion</code> of the object). We have the following cases:</p>
+<ul>
+<li><code>dispersion &lt; 1</code>: binomial distribution</li>
+<li><code>dispersion = 1</code>: Poisson distribution</li>
+<li><code>dispersion &gt; 1</code>: negative binomial distribution.</li>
+</ul>
+<p><strong>Severity distribution:</strong> The piecewise Pareto distribution is specified by the vectors <code>t</code>, <code>alpha</code>, <code>truncation</code> and <code>truncation_type</code>.</p>
+<p>The function <code>PiecewisePareto_Match_Layer_Losses</code> returns <code>PPP_Model</code> object. Such an object can also be directly created using the constructor function:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1">PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </a>
+<a class="sourceLine" id="cb55-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb55-3" title="3">PPPM</a></code></pre></div>
+<pre><code>## 
+## Panjer &amp; Piecewise Pareto model
+## 
+## Collective model with a Negative Binomial distribution for the claim count and a Piecewise Pareto distributed severity.
+## 
+## Negative Binomial Distribution:
+## Expected Frequency:   2
+## Dispersion:           1.5 (i.e. contagion = 0.25)
+## 
+## Piecewise Pareto Distribution:
+## Thresholds:         1000   2000
+## Alphas:              1   2
+## Truncation:           10000
+## Truncation Type:      &#39;wd&#39;
+## 
+## Status:               0
+## Comments:             OK</code></pre>
+<div id="expected-loss-standard-deviation-and-variance-for-reinsurance-layers" class="section level3">
+<h3>Expected Loss, Standard Deviation and Variance for Reinsurance Layers</h3>
+<p>A <code>PPP_Model</code> can directly be used to calculate the expected loss, the standard deviation or the variance of a reinsurance layer: function:</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1">PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </a>
+<a class="sourceLine" id="cb57-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb57-3" title="3"><span class="kw">PPP_Model_Exp_Layer_Loss</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, PPPM)</a></code></pre></div>
+<pre><code>## [1] 2475.811</code></pre>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1"><span class="kw">PPP_Model_Layer_Sd</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, PPPM)</a></code></pre></div>
+<pre><code>## [1] 2676.332</code></pre>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1"><span class="kw">PPP_Model_Layer_Var</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, PPPM)</a></code></pre></div>
+<pre><code>## [1] 7162754</code></pre>
+</div>
+<div id="expected-excess-frequency" class="section level3">
+<h3>Expected Excess Frequency</h3>
+<p>A <code>PPP_Model</code> can directly be used to calculate the expected frequency in excess of a threshold:</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" title="1">PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </a>
+<a class="sourceLine" id="cb63-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb63-3" title="3">thresholds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1000</span>, <span class="dv">2000</span>, <span class="dv">5000</span>, <span class="dv">10000</span>, <span class="ot">Inf</span>)</a>
+<a class="sourceLine" id="cb63-4" title="4"><span class="kw">PPP_Model_Excess_Frequency</span>(thresholds, PPPM)</a></code></pre></div>
+<pre><code>## [1] 2.0000000 2.0000000 0.9795918 0.1224490 0.0000000 0.0000000</code></pre>
+</div>
+<div id="simulation-of-losses" class="section level3">
+<h3>Simulation of Losses</h3>
+<p>A <code>PPP_Model</code> can directly be used to simulate losses with the corresponding collective model:</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1">PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </a>
+<a class="sourceLine" id="cb65-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb65-3" title="3"><span class="kw">PPP_Model_Simulate</span>(<span class="dv">10</span>, PPPM)</a></code></pre></div>
+<pre><code>##           [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]
+##  [1,] 2055.049      NaN      NaN      NaN      NaN      NaN      NaN
+##  [2,] 2159.166      NaN      NaN      NaN      NaN      NaN      NaN
+##  [3,] 2267.482 1134.851 4203.574      NaN      NaN      NaN      NaN
+##  [4,] 2152.046      NaN      NaN      NaN      NaN      NaN      NaN
+##  [5,] 1445.720 2975.461      NaN      NaN      NaN      NaN      NaN
+##  [6,]      NaN      NaN      NaN      NaN      NaN      NaN      NaN
+##  [7,] 2103.711 2066.431      NaN      NaN      NaN      NaN      NaN
+##  [8,] 1037.511 1112.597 1062.951 2841.643 2057.994 1213.382 1430.868
+##  [9,] 2163.264      NaN      NaN      NaN      NaN      NaN      NaN
+## [10,] 2432.638      NaN      NaN      NaN      NaN      NaN      NaN</code></pre>
+<p>The function <code>PPP_Model_Simulate</code> returns a matrix where each row contains the losses from one simulation.</p>
+<p>Note that for a given expected frequency <code>FQ</code> not every dispersion <code>dispersion &lt; 1</code> is possible for the binomial distribution. In this case a binomial distribution with the smallest dispersion larger than or equal to <code>dispersion</code> is used for the simulation.</p>
+</div>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>

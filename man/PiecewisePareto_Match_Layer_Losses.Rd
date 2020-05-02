@@ -16,6 +16,7 @@ PiecewisePareto_Match_Layer_Losses(
   Use_unlimited_Layer_for_FQ = TRUE,
   truncation = NULL,
   truncation_type = "lp",
+  dispersion = 1,
   tolerance = 1e-10,
   alpha_max = 100,
   merge_tolerance = 1e-06,
@@ -29,11 +30,11 @@ PiecewisePareto_Match_Layer_Losses(
 
 \item{Unlimited_Layers}{Logical. If \code{TRUE}, then \code{Expected_Layer_Losses[i]} contains the expected loss of \code{Inf} xs \code{Attachment_Points[i]}. If \code{FALSE} then \code{Expected_Layer_Losses[i]} contains the expected loss of the layer \code{Attachment_Points[i+1]} xs \code{Attachment_Points[i]}}
 
-\item{Frequencies}{Numeric vector. Expected frequencies excess the attachment points. If \code{NULL} then the function calculates frequencies.}
+\item{Frequencies}{Numeric vector. Expected frequencies excess the attachment points. The vector may contain NAs. If \code{NULL} then the function calculates frequencies.}
 
-\item{FQ_at_lowest_AttPt}{Numerical. Expected frequency excess \code{Attachment_Points[1]}}
+\item{FQ_at_lowest_AttPt}{Numerical. Expected frequency excess \code{Attachment_Points[1]}. Overrules first entry in Frequencies.}
 
-\item{FQ_at_highest_AttPt}{Numerical. Expected frequency excess \code{Attachment_Points[k]}}
+\item{FQ_at_highest_AttPt}{Numerical. Expected frequency excess \code{Attachment_Points[k]}. Overrules last entry in Frequencies.}
 
 \item{TotalLoss_Frequencies}{Numeric vector. \code{TotalLoss_Frequencies[i]} is the frequency of total losses to layer \code{i} (i.e. \code{Attachment_Points[i+1] - Attachment_Points[i]} xs \code{Attachment_Points[i]}).    \code{TotalLoss_Frequencies[i]} is the frequency for losses larger than or equal to \code{Attachment_Points[i+1]}, whereas \code{Frequencies[i]} is the frequency of losses larger than \code{Attachment_Points[i]}.    \code{TotalLoss_Frequencies[i] > Frequencies[i+1]} means that there is a point mass of the severity at \code{Attachment_Points[i+1]}.}
 
@@ -41,9 +42,11 @@ PiecewisePareto_Match_Layer_Losses(
 
 \item{Use_unlimited_Layer_for_FQ}{Logical. Only relevant if no frequency is provided for the highest attachment point by the user. If \code{TRUE} then the frequency is calculated using the Pareto alpha between the last two layers.}
 
-\item{truncation}{Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > max(Attachment_Points)}, then the last Pareto piece is truncated at \code{truncation} (\code{truncation_type = "lp"}).}
+\item{truncation}{Numeric. If \code{truncation} is not \code{NULL}, then the distribution is truncated at \code{truncation}.}
 
-\item{truncation_type}{Character. Currently only \code{truncation_type = "lp"} supported. A truncated Pareto is used for the last piece.}
+\item{truncation_type}{Character. If \code{truncation_type = "wd"} then the whole distribution is truncated. If \code{truncation_type = "lp"} then a truncated Pareto is used for the last piece.}
+
+\item{dispersion}{Numerical. Dispersion of the claim count distribution in the resulting PPP_Model.}
 
 \item{tolerance}{Numeric. Numerical tolerance.}
 
@@ -54,11 +57,15 @@ PiecewisePareto_Match_Layer_Losses(
 \item{RoL_tolerance}{Numerical. Consecutive layers are merged if RoL decreases less than factor \code{1 - RoL_tolerance}.}
 }
 \value{
-A list containing the following objects: \itemize{
+A PPP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
+\item \code{FQ} Numerical. Frequency in excess of the lowest threshold of the piecewise Pareto distribution
 \item \code{t} Numeric vector. Vector containing the thresholds for the piecewise Pareto distribution
 \item \code{alpha} Numeric vector. Vector containing the Pareto alphas of the piecewise Pareto distribution
-\item \code{Status} Character. Information on whether the fit was successful
-\item \code{FQ} Numerical. Frequency in excess of the lowest threshold of the piecewise Pareto distribution
+\item \code{truncation} Numerical. If \code{truncation} is not \code{NULL} and \code{truncation > max(t)}, then the distribution is truncated at \code{truncation}.
+\item \code{truncation_type} Character. If \code{truncation_type = "wd"} then the whole distribution is truncated. If \code{truncation_type = "lp"} then a truncated Pareto is used for the last piece.
+\item \code{dispersion} Numerical. Dispersion of the Panjer distribution (i.e. variance to mean ratio).
+\item \code{Status} Numerical indicator: 0 = success, 1 = some information has been ignored, 2 = no solution found
+\item \code{Comment} Character. Information on whether the fit was successful
 }
 }
 \description{

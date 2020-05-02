@@ -91,3 +91,30 @@ c(PiecewisePareto_Layer_Mean(500, 1000, fit$t, fit$alpha) * fit$FQ,
   PiecewisePareto_Layer_Mean(500, 2500, fit$t, fit$alpha) * fit$FQ,
   PiecewisePareto_Layer_Mean(Inf, 3000, fit$t, fit$alpha) * fit$FQ)
 
+## ------------------------------------------------------------------------
+covers <- c(diff(attachment_points), Inf)
+PPP_Model_Exp_Layer_Loss(covers, attachment_points, fit)
+
+## ------------------------------------------------------------------------
+PPPM <- PPP_Model(FQ = 2, t = c(1000, 2000), alpha = c(1, 2), 
+                  truncation = 10000, truncation_type = "wd", dispersion = 1.5)
+PPPM
+
+## ------------------------------------------------------------------------
+PPPM <- PPP_Model(FQ = 2, t = c(1000, 2000), alpha = c(1, 2), 
+                  truncation = 10000, truncation_type = "wd", dispersion = 1.5)
+PPP_Model_Exp_Layer_Loss(4000, 1000, PPPM)
+PPP_Model_Layer_Sd(4000, 1000, PPPM)
+PPP_Model_Layer_Var(4000, 1000, PPPM)
+
+## ------------------------------------------------------------------------
+PPPM <- PPP_Model(FQ = 2, t = c(1000, 2000), alpha = c(1, 2), 
+                  truncation = 10000, truncation_type = "wd", dispersion = 1.5)
+thresholds <- c(0, 1000, 2000, 5000, 10000, Inf)
+PPP_Model_Excess_Frequency(thresholds, PPPM)
+
+## ------------------------------------------------------------------------
+PPPM <- PPP_Model(FQ = 2, t = c(1000, 2000), alpha = c(1, 2), 
+                  truncation = 10000, truncation_type = "wd", dispersion = 1.5)
+PPP_Model_Simulate(10, PPPM)
+
