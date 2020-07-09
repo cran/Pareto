@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Ulrich Riegel" />
 
-<meta name="date" content="2020-05-02" />
+<meta name="date" content="2020-07-09" />
 
 <title>Pareto Package Vignette</title>
 
@@ -118,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -289,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -304,7 +301,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Pareto Package Vignette</h1>
 <h4 class="author">Ulrich Riegel</h4>
-<h4 class="date">2020-05-02</h4>
+<h4 class="date">2020-07-09</h4>
 
 
 
@@ -312,7 +309,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h2>Introduction</h2>
 <p>The (European) Pareto distribution is probably the most popular distribution for modeling large losses in reinsurance pricing. There are good reasons for this popularity, which are discussed in detail in Fackler (2013). We recommend Philbrick (1985) and Schmutz <em>et.al.</em> (1998) for an impression of how the (European) Pareto distribution is applied in practice.</p>
 <p>In cases where the Pareto distribution is not flexible enough, pricing actuaries sometimes use piecewise Pareto distributions. For instance, a Pareto alpha of 1.5 is used to model claim sizes between USD 1M and USD 5M and an alpha of 2.5 is used above USD 5M. A particularly useful and non-trivial application of the piecewise Pareto distribution is that it can be used to match a tower of expected layer losses with a layer independent collective loss model. Details are described in Riegel (2018), who also provides a matching algorithm that works for an arbitrary number of reinsurance layers.</p>
-<p>The package provides a tool kit for the Pareto and the Piecewise Pareto distribution, which is useful for pricing of reinsurance treaties. In particular, the package provides the matching algorithm for layer losses.</p>
+<p>The package provides a tool kit for the Pareto, the piecewise Pareto and the generalized Pareto distribution, which is useful for pricing of reinsurance treaties. In particular, the package provides the matching algorithm for layer losses.</p>
 </div>
 <div id="pareto-distribution" class="section level2">
 <h2>Pareto distribution</h2>
@@ -339,15 +336,15 @@ F_{t,\alpha}(x):=\begin{cases}
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>The package also provides the quantile function:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">qPareto</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">10</span> <span class="op">/</span><span class="st"> </span><span class="dv">10</span>, <span class="dv">1000</span>, <span class="dv">2</span>)</a></code></pre></div>
-<pre><code>##  [1] 1000.000 1054.093 1118.034 1195.229 1290.994 1414.214 1581.139
-##  [8] 1825.742 2236.068 3162.278      Inf</code></pre>
+<pre><code>##  [1] 1000.000 1054.093 1118.034 1195.229 1290.994 1414.214 1581.139 1825.742
+##  [9] 2236.068 3162.278      Inf</code></pre>
 </div>
 <div id="simulation" class="section level3">
 <h3>Simulation:</h3>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">rPareto</span>(<span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">2</span>)</a></code></pre></div>
-<pre><code>##  [1] 1292.948 1478.997 1264.428 2213.742 3244.998 4321.080 2862.727
-##  [8] 1069.437 2116.547 3158.694 1605.736 1221.685 1437.802 2633.073
-## [15] 1813.905 1022.537 2928.294 1070.701 1056.264 2146.440</code></pre>
+<pre><code>##  [1] 1474.666 5650.373 1773.300 1205.131 1766.101 1587.097 1665.768 1259.295
+##  [9] 2580.145 1431.201 1188.809 1078.929 1068.653 1061.356 1911.431 1164.972
+## [17] 2950.296 1511.268 1000.528 1096.830</code></pre>
 </div>
 <div id="layer-mean" class="section level3">
 <h3>Layer mean:</h3>
@@ -362,8 +359,7 @@ E(\min[c,\max(X-a,0)]) = \int_a^{c+a}(1-F_{t,\alpha}(x))\, dx =: I_{t,\alpha}^{\
 <h3>Layer variance:</h3>
 <p>Let <span class="math inline">\(X\sim \text{Pareto}(t,\alpha)\)</span> and <span class="math inline">\(a, c\ge 0\)</span>. Then the variance of the layer loss <span class="math inline">\(\min[c,\max(X-a,0)]\)</span> can be calculated with the function <code>Pareto_Layer_Var</code>.</p>
 <p><em>Example:</em> <span class="math inline">\(t=500\)</span>, <span class="math inline">\(\alpha = 2\)</span>, Layer 4000 xs 1000</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">library</span>(Pareto)</a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="kw">Pareto_Layer_Var</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, <span class="dv">2</span>, <span class="dt">t =</span> <span class="dv">500</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">Pareto_Layer_Var</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, <span class="dv">2</span>, <span class="dt">t =</span> <span class="dv">500</span>)</a></code></pre></div>
 <pre><code>## [1] 364719</code></pre>
 </div>
 <div id="why-is-the-pareto-distribution-so-popular" class="section level3">
@@ -444,7 +440,7 @@ f_2 = f_1 \cdot \left(\frac{t_1}{t_2}\right)^\alpha
 <p>Pareto distributed losses with a reporting threshold of <span class="math inline">\(t=100\)</span> and <span class="math inline">\(\alpha = 2\)</span>:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPareto</span>(<span class="dv">1000</span>, <span class="dt">t =</span> <span class="dv">100</span>, <span class="dt">alpha =</span> <span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb33-2" title="2"><span class="kw">Pareto_ML_Estimator_Alpha</span>(losses, <span class="dt">t =</span> <span class="dv">100</span>)</a></code></pre></div>
-<pre><code>## [1] 2.048619</code></pre>
+<pre><code>## [1] 2.106583</code></pre>
 </div>
 <div id="truncation" class="section level3">
 <h3>Truncation</h3>
@@ -485,9 +481,9 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <div id="simulation-1" class="section level3">
 <h3>Simulation</h3>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">rPiecewisePareto</span>(<span class="dv">20</span>, t, alpha)</a></code></pre></div>
-<pre><code>##  [1] 1300.638 3448.499 1066.498 1057.231 1011.667 1017.480 1611.076
-##  [8] 1043.258 1830.830 2851.443 2407.847 1088.753 1080.614 1168.941
-## [15] 1225.730 1891.538 1133.505 1782.926 1551.437 1082.830</code></pre>
+<pre><code>##  [1] 1162.864 1199.878 1032.403 1070.109 4105.392 1444.605 1683.931 1122.714
+##  [9] 4008.938 1376.195 1289.021 1229.029 1132.429 1153.457 1117.178 1048.721
+## [17] 1007.457 1008.221 1500.681 1356.458</code></pre>
 </div>
 <div id="layer-mean-1" class="section level3">
 <h3>Layer mean</h3>
@@ -506,7 +502,7 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>Piecewise Pareto distributed losses with <span class="math inline">\(\mathbf{t}:=(100,\,200,\, 300)\)</span> and <span class="math inline">\(\boldsymbol\alpha:=(1,\, 2,\, 3)\)</span>:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">losses &lt;-<span class="st"> </span><span class="kw">rPiecewisePareto</span>(<span class="dv">10000</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</a>
 <a class="sourceLine" id="cb47-2" title="2"><span class="kw">PiecewisePareto_ML_Estimator_Alpha</span>(losses, <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>))</a></code></pre></div>
-<pre><code>## [1] 0.9910559 1.9980430 2.9472604</code></pre>
+<pre><code>## [1] 0.9877786 1.9711218 3.0946606</code></pre>
 </div>
 <div id="truncation-1" class="section level3">
 <h3>Truncation</h3>
@@ -602,7 +598,7 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <pre><code>## [1] 100  90  50  40 100</code></pre>
 <p>There are, however, functions which can directly use PPP_Models:</p>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1">covers &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">diff</span>(attachment_points), <span class="ot">Inf</span>)</a>
-<a class="sourceLine" id="cb53-2" title="2"><span class="kw">PPP_Model_Exp_Layer_Loss</span>(covers, attachment_points, fit)</a></code></pre></div>
+<a class="sourceLine" id="cb53-2" title="2"><span class="kw">Layer_Mean</span>(fit, covers, attachment_points)</a></code></pre></div>
 <pre><code>## [1] 100  90  50  40 100</code></pre>
 </div>
 <div id="ppp_models-panjer-piecewise-pareto-models" class="section level2">
@@ -641,11 +637,11 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>A <code>PPP_Model</code> can directly be used to calculate the expected loss, the standard deviation or the variance of a reinsurance layer: function:</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1">PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </a>
 <a class="sourceLine" id="cb57-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb57-3" title="3"><span class="kw">PPP_Model_Exp_Layer_Loss</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, PPPM)</a></code></pre></div>
+<a class="sourceLine" id="cb57-3" title="3"><span class="kw">Layer_Mean</span>(PPPM, <span class="dv">4000</span>, <span class="dv">1000</span>)</a></code></pre></div>
 <pre><code>## [1] 2475.811</code></pre>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1"><span class="kw">PPP_Model_Layer_Sd</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, PPPM)</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1"><span class="kw">Layer_Sd</span>(PPPM, <span class="dv">4000</span>, <span class="dv">1000</span>)</a></code></pre></div>
 <pre><code>## [1] 2676.332</code></pre>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1"><span class="kw">PPP_Model_Layer_Var</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, PPPM)</a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1"><span class="kw">Layer_Var</span>(PPPM, <span class="dv">4000</span>, <span class="dv">1000</span>)</a></code></pre></div>
 <pre><code>## [1] 7162754</code></pre>
 </div>
 <div id="expected-excess-frequency" class="section level3">
@@ -654,7 +650,7 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" title="1">PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </a>
 <a class="sourceLine" id="cb63-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
 <a class="sourceLine" id="cb63-3" title="3">thresholds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1000</span>, <span class="dv">2000</span>, <span class="dv">5000</span>, <span class="dv">10000</span>, <span class="ot">Inf</span>)</a>
-<a class="sourceLine" id="cb63-4" title="4"><span class="kw">PPP_Model_Excess_Frequency</span>(thresholds, PPPM)</a></code></pre></div>
+<a class="sourceLine" id="cb63-4" title="4"><span class="kw">Excess_Frequency</span>(PPPM, thresholds)</a></code></pre></div>
 <pre><code>## [1] 2.0000000 2.0000000 0.9795918 0.1224490 0.0000000 0.0000000</code></pre>
 </div>
 <div id="simulation-of-losses" class="section level3">
@@ -662,20 +658,118 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>A <code>PPP_Model</code> can directly be used to simulate losses with the corresponding collective model:</p>
 <div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1">PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </a>
 <a class="sourceLine" id="cb65-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb65-3" title="3"><span class="kw">PPP_Model_Simulate</span>(<span class="dv">10</span>, PPPM)</a></code></pre></div>
-<pre><code>##           [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]
-##  [1,] 2055.049      NaN      NaN      NaN      NaN      NaN      NaN
-##  [2,] 2159.166      NaN      NaN      NaN      NaN      NaN      NaN
-##  [3,] 2267.482 1134.851 4203.574      NaN      NaN      NaN      NaN
-##  [4,] 2152.046      NaN      NaN      NaN      NaN      NaN      NaN
-##  [5,] 1445.720 2975.461      NaN      NaN      NaN      NaN      NaN
-##  [6,]      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-##  [7,] 2103.711 2066.431      NaN      NaN      NaN      NaN      NaN
-##  [8,] 1037.511 1112.597 1062.951 2841.643 2057.994 1213.382 1430.868
-##  [9,] 2163.264      NaN      NaN      NaN      NaN      NaN      NaN
-## [10,] 2432.638      NaN      NaN      NaN      NaN      NaN      NaN</code></pre>
-<p>The function <code>PPP_Model_Simulate</code> returns a matrix where each row contains the losses from one simulation.</p>
+<a class="sourceLine" id="cb65-3" title="3"><span class="kw">Simulate_Losses</span>(PPPM, <span class="dv">10</span>)</a></code></pre></div>
+<pre><code>##           [,1]     [,2]     [,3]
+##  [1,] 1266.640      NaN      NaN
+##  [2,]      NaN      NaN      NaN
+##  [3,] 5991.073 1304.936      NaN
+##  [4,] 1282.121 4005.112 1175.979
+##  [5,] 2367.291      NaN      NaN
+##  [6,] 1248.373      NaN      NaN
+##  [7,] 3064.119 2888.808 1251.142
+##  [8,] 1732.366 1811.926      NaN
+##  [9,] 2211.160      NaN      NaN
+## [10,] 1081.810 1086.841 2319.059</code></pre>
+<p>The function <code>Simulate_Losses</code> returns a matrix where each row contains the losses from one simulation.</p>
 <p>Note that for a given expected frequency <code>FQ</code> not every dispersion <code>dispersion &lt; 1</code> is possible for the binomial distribution. In this case a binomial distribution with the smallest dispersion larger than or equal to <code>dispersion</code> is used for the simulation.</p>
+</div>
+</div>
+<div id="generalized-pareto-distribution" class="section level2">
+<h2>Generalized Pareto Distribution</h2>
+<p><strong>Definition:</strong> Let <span class="math inline">\(t&gt;0\)</span> and <span class="math inline">\(\alpha_\text{ini}, \alpha_\text{tail}&gt;0\)</span>. The <em>generalized Pareto distribution</em> <span class="math inline">\(\text{GenPareto}(t,\alpha_\text{ini}, \alpha_\text{tail})\)</span> is defined by the distribution function <span class="math display">\[
+F_{t,\alpha_\text{ini}, \alpha_\text{tail}}(x):=\begin{cases}
+0 &amp; \text{ for $x\le t$} \\
+\displaystyle 1-\left(1+\frac{\alpha_\text{ini}}{\alpha_\text{tail}} \left(\frac{x}{t}-1\right)\right)^{-\alpha_\text{tail}} &amp; \text{ for $x&gt;t$.}
+\end{cases}
+\]</span> We do not the standard parameterization from extreme value theory but the parameterization from Riegel (2008) which is useful in a reinsurance context.</p>
+<div id="distribution-function-and-density-1" class="section level3">
+<h3>Distribution function and density</h3>
+<p>The functions <code>pGenPareto</code> and <code>dGenPareto</code> provide the distribution function and the density function of the Pareto distribution:</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) <span class="op">*</span><span class="st"> </span><span class="dv">1000</span></a>
+<a class="sourceLine" id="cb67-2" title="2"><span class="kw">pGenPareto</span>(x, <span class="dt">t =</span> <span class="dv">1000</span>, <span class="dt">alpha_ini =</span> <span class="dv">1</span>, <span class="dt">alpha_tail =</span> <span class="dv">2</span>)</a></code></pre></div>
+<pre><code>##  [1] 0.0000000 0.5555556 0.7500000 0.8400000 0.8888889 0.9183673 0.9375000
+##  [8] 0.9506173 0.9600000 0.9669421</code></pre>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" title="1"><span class="kw">plot</span>(<span class="kw">pGenPareto</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>, <span class="dv">1000</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">xlab =</span> <span class="st">&quot;x&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;CDF(x)&quot;</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1"><span class="kw">dGenPareto</span>(x, <span class="dt">t =</span> <span class="dv">1000</span>, <span class="dt">alpha_ini =</span> <span class="dv">1</span>, <span class="dt">alpha_tail =</span> <span class="dv">2</span>)</a></code></pre></div>
+<pre><code>##  [1] 0.000000e+00 2.962963e-04 1.250000e-04 6.400000e-05 3.703704e-05
+##  [6] 2.332362e-05 1.562500e-05 1.097394e-05 8.000000e-06 6.010518e-06</code></pre>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1"><span class="kw">plot</span>(<span class="kw">dGenPareto</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5000</span>, <span class="dv">1000</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">xlab =</span> <span class="st">&quot;x&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;PDF(x)&quot;</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The package also provides the quantile function:</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" title="1"><span class="kw">qGenPareto</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">10</span> <span class="op">/</span><span class="st"> </span><span class="dv">10</span>, <span class="dv">1000</span>, <span class="dv">1</span>, <span class="dv">2</span>)</a></code></pre></div>
+<pre><code>##  [1] 1000.000 1108.185 1236.068 1390.457 1581.989 1828.427 2162.278 2651.484
+##  [9] 3472.136 5324.555      Inf</code></pre>
+</div>
+<div id="simulation-2" class="section level3">
+<h3>Simulation:</h3>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1"><span class="kw">rGenPareto</span>(<span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">1</span>, <span class="dv">2</span>)</a></code></pre></div>
+<pre><code>##  [1]  1772.913  1478.241  8354.756  2111.723  3162.379 32850.393  5597.288
+##  [8]  1766.094  1079.832  1016.452  4039.234  1015.216  5659.635  7340.540
+## [15]  1387.975  2592.041  1066.031  1354.714  1731.588  3555.537</code></pre>
+</div>
+<div id="layer-mean-2" class="section level3">
+<h3>Layer mean:</h3>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" title="1"><span class="kw">GenPareto_Layer_Mean</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, <span class="dt">t =</span> <span class="dv">500</span>, <span class="dt">alpha_ini =</span> <span class="dv">1</span>, <span class="dt">alpha_tail =</span> <span class="dv">2</span>)</a></code></pre></div>
+<pre><code>## [1] 484.8485</code></pre>
+</div>
+<div id="layer-variance-2" class="section level3">
+<h3>Layer variance:</h3>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" title="1"><span class="kw">GenPareto_Layer_Var</span>(<span class="dv">4000</span>, <span class="dv">1000</span>, <span class="dt">t =</span> <span class="dv">500</span>, <span class="dt">alpha_ini =</span> <span class="dv">1</span>, <span class="dt">alpha_tail =</span> <span class="dv">2</span>)</a></code></pre></div>
+<pre><code>## [1] 908942.5</code></pre>
+</div>
+</div>
+<div id="pgp_models-panjer-generalized-pareto-models" class="section level2">
+<h2>PGP_Models (Panjer &amp; Generalized Pareto Models)</h2>
+<p>A <code>PGP_Model</code> object contains the information required to specify a collective model with a Panjer distributed claim count and a generalized Pareto distributed severity.</p>
+<p><strong>Claim count distribution:</strong> Like in a <code>PPP_Model</code> the claim count distribution from the Panjer class is specified by the expected frequency <span class="math inline">\(E(N)\)</span> (attribute <code>FQ</code> of the object) and the dispersion <span class="math inline">\(D(N):=Var(N)/E(N)\)</span> (attribute <code>dispersion</code> of the object).</p>
+<p><strong>Severity distribution:</strong> The generalized Pareto distribution is specified by the parameters <code>t</code>, <code>alpha_ini</code>, <code>alpha_tail</code> and <code>truncation</code>.</p>
+<p>A <code>PPP_Model</code> object can be created using the constructor function:</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" title="1">PGPM &lt;-<span class="st"> </span><span class="kw">PGP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="dv">1000</span>, <span class="dt">alpha_ini =</span> <span class="dv">1</span>, <span class="dt">alpha_tail =</span> <span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb81-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb81-3" title="3">PGPM</a></code></pre></div>
+<pre><code>## 
+## Panjer &amp; Generalized Pareto model
+## 
+## Collective model with a Negative Binomial distribution for the claim count and a generalized Pareto distributed severity.
+## 
+## Negative Binomial Distribution:
+## Expected Frequency:   2
+## Dispersion:           1.5 (i.e. contagion = 0.25)
+## Generalized Pareto Distribution:
+## Threshold:            1000
+## alpha_ini:            1
+## alpha_tail:           2
+## Truncation:           10000
+## 
+## Status:               0
+## Comments:             OK</code></pre>
+<div id="methods-for-pgp_models" class="section level3">
+<h3>Methods for PGP_Models</h3>
+<p>For PGP_Models the same methods are available as for PPP_Models:</p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" title="1">PGPM &lt;-<span class="st"> </span><span class="kw">PGP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="dv">1000</span>, <span class="dt">alpha_ini =</span> <span class="dv">1</span>, <span class="dt">alpha_tail =</span> <span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb83-2" title="2">                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb83-3" title="3"><span class="kw">Layer_Mean</span>(PGPM, <span class="dv">4000</span>, <span class="dv">1000</span>)</a></code></pre></div>
+<pre><code>## [1] 2484.33</code></pre>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" title="1"><span class="kw">Layer_Sd</span>(PGPM, <span class="dv">4000</span>, <span class="dv">1000</span>)</a></code></pre></div>
+<pre><code>## [1] 2756.15</code></pre>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb87-1" title="1"><span class="kw">Layer_Var</span>(PGPM, <span class="dv">4000</span>, <span class="dv">1000</span>)</a></code></pre></div>
+<pre><code>## [1] 7596365</code></pre>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb89-1" title="1">thresholds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1000</span>, <span class="dv">2000</span>, <span class="dv">5000</span>, <span class="dv">10000</span>, <span class="ot">Inf</span>)</a>
+<a class="sourceLine" id="cb89-2" title="2"><span class="kw">Excess_Frequency</span>(PGPM, thresholds)</a></code></pre></div>
+<pre><code>## [1] 2.0000000 2.0000000 0.8509022 0.1614435 0.0000000 0.0000000</code></pre>
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb91-1" title="1"><span class="kw">Simulate_Losses</span>(PGPM, <span class="dv">10</span>)</a></code></pre></div>
+<pre><code>##           [,1]     [,2]     [,3]     [,4]
+##  [1,] 2620.326 1422.076 3499.159 2495.885
+##  [2,] 1546.914      NaN      NaN      NaN
+##  [3,] 1377.625 1447.268 1704.737      NaN
+##  [4,] 1597.050 1088.183 2490.309      NaN
+##  [5,] 4847.857      NaN      NaN      NaN
+##  [6,] 1241.716      NaN      NaN      NaN
+##  [7,] 1864.495 4397.882 1270.887      NaN
+##  [8,] 1325.962      NaN      NaN      NaN
+##  [9,] 2099.793 2724.719      NaN      NaN
+## [10,] 5570.219 1007.457      NaN      NaN</code></pre>
 </div>
 </div>
 <div id="references" class="section level2">
@@ -683,6 +777,7 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>Fackler, M. (2013) Reinventing Pareto: Fits for both small and large losses. ASTIN Colloquium Den Haag</p>
 <p>Johnson, N.L., and Kotz, S. (1970) Continuous Univariate Distributions-I. Houghton Mifflin Co</p>
 <p>Philbrick, S.W. (1985) A Practical Guide to the Single Parameter Pareto Distribution. PCAS LXXII: 44–84</p>
+<p>Riegel, U. (2008) Generalizations of common ILF models. Bl&quot;{a}tter der DGVFM 29: 45–71</p>
 <p>Riegel, U. (2018) Matching tower information with piecewise Pareto. European Actuarial Journal 8(2): 437–460</p>
 <p>Schmutz, M., and Doerr, R.R. (1998) Das Pareto-Modell in der Sach-Rueckversicherung. Formeln und Anwendungen. Swiss Re Publications, Zuerich</p>
 </div>

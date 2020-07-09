@@ -2526,16 +2526,23 @@ Pareto_ML_Estimator_Alpha <- function(losses, t, truncation = NULL, tol = 1e-7, 
     warning("t must have length 1 or same length as losses.")
     return(NaN)
   }
+  if (length(t) == 1) {
+    t <- rep(t, length(losses))
+  }
 
-  losses <- losses[losses > t]
+  index <- losses > t
+  losses <- losses[index]
+  t <- t[index]
   n <- length(losses)
 
   if (!is.null(truncation)) {
     if (!is.positive.number(truncation)) {
       warning("truncation must be NULL or a positive number ('Inf' allowed).")
+      return(NaN)
     }
     if (truncation <= max(t)) {
       warning("truncation must be larger than t")
+      return(NaN)
     }
     if (max(losses) >= truncation) {
       warning("Losses must be < truncation.")
@@ -2760,8 +2767,8 @@ Local_Pareto_Alpha <- function(x, distribution, ...) {
     warning("x must be a numeric vector.")
     return(rep(NaN, length(x)))
   }
-  if (!(distribution %in% c("lnorm", "norm", "gamma"))) {
-    warning("distribution must be 'lnorm', 'norm' or 'gamma'.")
+  if (!(distribution %in% c("lnorm", "norm", "gamma", "weibull", "exp"))) {
+    warning("distribution must be 'lnorm', 'norm', 'gamma', 'weibull' or 'exp'.")
     return(rep(NaN, length(x)))
   }
   if (distribution == "lnorm") {
@@ -2773,6 +2780,776 @@ Local_Pareto_Alpha <- function(x, distribution, ...) {
   if (distribution == "gamma") {
     Result <- x * stats::dgamma(x, log = FALSE, ...) / (1 - stats::pgamma(x, log.p = FALSE, ...))
   }
+  if (distribution == "weibull") {
+    Result <- x * stats::dweibull(x, log = FALSE, ...) / (1 - stats::pweibull(x, log.p = FALSE, ...))
+  }
+  if (distribution == "exp") {
+    Result <- x * stats::dexp(x, log = FALSE, ...) / (1 - stats::pexp(x, log.p = FALSE, ...))
+  }
   Result[is.na(x) | is.infinite(x) | (x < 0)] <- NaN
   return(Result)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Distribution Function of the generalized Pareto Distribution
+#'
+#' @description Calculates the cumulative distribution function of a generalized Pareto distribution
+#'
+#' @param x Numeric. The function evaluates the CDF at \code{x}.
+#' @param t Numeric. Threshold of the generalized Pareto distribution.
+#' @param alpha_ini Numeric. Initial Pareto alpha.
+#' @param alpha_tail Numeric. Tail Pareto alpha.
+#' @param truncation Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the generalized Pareto distribution is truncated at \code{truncation}.
+#'
+#' @return Distribution function of the generalized Pareto distribution with parameters \code{t}, \code{alpha_ini} and \code{alpha_tail} evaluated at \code{x}
+#'
+#' @examples
+#' x <- 0:10 * 1000
+#' pGenPareto(x, 1000, 1, 3)
+#' pGenPareto(x, 1000, 1, 3, truncation = 5000)
+#'
+#'
+#' @export
+
+pGenPareto <- function(x, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!is.atomic(x) || !is.numeric(x) || length(x) < 1) {
+    warning("x must be a numeric vector.")
+    return(rep(NaN, length(x)))
+  }
+  if (!valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation)) {
+    warning(valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation, comment = TRUE))
+    return(rep(NaN, length(x)))
+  }
+  sapply(x, FUN = function(x) pGenPareto_s(x, t, alpha_ini, alpha_tail, truncation))
+}
+
+pGenPareto_s <- function(x, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation)) {
+    warning(valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation, comment = TRUE))
+    return(NaN)
+  }
+  if (!is.number(x)) {
+    warning("x must be a number ('Inf' allowed).")
+    return(NaN)
+  }
+
+
+  if (x <= t) {
+    return(0)
+  } else if (is.null(truncation)) {
+    Result <- 1 - (1 + alpha_ini / alpha_tail * (x / t - 1))^(-alpha_tail)
+    return(Result)
+  } else if (x >= truncation) {
+    return(1)
+  } else {
+    Result <- (1 - (1 + alpha_ini / alpha_tail * (x / t - 1))^(-alpha_tail)) / (1 - (1 + alpha_ini / alpha_tail * (truncation / t - 1))^(-alpha_tail))
+    return(Result)
+  }
+}
+
+
+
+
+
+
+
+#' Density of the generalized Pareto Distribution
+#'
+#' @description Calculates the density function of the generalized Pareto distribution
+#'
+#' @param x Numeric. The function evaluates the density at x.
+#' @param t Numeric. Threshold of the Pareto distribution.
+#' @param alpha_ini Numeric. Initial Pareto alpha.
+#' @param alpha_tail Numeric. Tail Pareto alpha.
+#' @param truncation Numeric. If truncation is not NULL and truncation > t, then the generalized Pareto distribution is truncated at truncation.
+#'
+#' @return Density function of the Pareto distribution with parameters \code{t}, \code{alpha_ini} and \code{alpha_tail} evaluated at \code{x}
+#'
+#' @examples
+#' x <- 0:10 * 1000
+#' dGenPareto(x, 1000, 1, 3)
+#' dGenPareto(x, 1000, 1, 3, truncation = 5000)
+#'
+#' @export
+
+dGenPareto <- function(x, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!is.atomic(x) || !is.numeric(x) || length(x) < 1) {
+    warning("x must be a numeric vector.")
+    return(rep(NaN, length(x)))
+  }
+  if (!valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation)) {
+    warning(valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation, comment = TRUE))
+    return(rep(NaN, length(x)))
+  }
+  sapply(x, FUN = function(x) dGenPareto_s(x, t, alpha_ini, alpha_tail, truncation))
+}
+
+dGenPareto_s <- function(x, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation)) {
+    warning(valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation, comment = TRUE))
+    return(NaN)
+  }
+  if (!is.number(x)) {
+    warning("x must be a number ('Inf' allowed).")
+    return(NaN)
+  }
+
+
+  if (x <= t) {
+    return(0)
+  } else if (is.null(truncation)) {
+    Result <- alpha_tail * (1 + alpha_ini / alpha_tail * (x / t - 1))^(-alpha_tail - 1) * alpha_ini / alpha_tail / t
+    return(Result)
+  } else if (x >= truncation) {
+    return(0)
+  } else {
+    Result <- alpha_tail * (1 + alpha_ini / alpha_tail * (x / t - 1))^(-alpha_tail - 1) * alpha_ini / alpha_tail / t / pGenPareto(truncation, t, alpha_ini, alpha_tail)
+    return(Result)
+  }
+}
+
+
+#' Quantile Function of the generalized Pareto Distribution
+#'
+#' @description Calculates the quantile function of a generalized Pareto distribution
+#'
+#' @param p Numeric. The function evaluates the inverse CDF at \code{p}.
+#' @param t Numeric. Threshold of the piecewise Pareto distribution.
+#' @param alpha_ini Numeric. Initial Pareto alpha.
+#' @param alpha_tail Numeric. Tail Pareto alpha.
+#' @param truncation Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the generalized Pareto distribution is truncated at \code{truncation}.
+#'
+#' @return Quantile function of the Pareto distribution with parameters \code{t}, \code{alpha_ini} and \code{alpha_tail}, evaluated at \code{p}
+#'
+#' @examples
+#' p <- 0:10 * 0.1
+#' qGenPareto(p, 1000, 2, 3)
+#' qGenPareto(p, 1000, 2, 3, truncation = 5000)
+#'
+#' @export
+
+qGenPareto <- function(p, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!is.nonnegative.finite.vector(p) || max(p) > 1) {
+    warning("p must be a vector with elements in [0,1].")
+    return(rep(NaN, length(p)))
+  }
+  if (!valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation)) {
+    warning(valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation, comment = TRUE))
+    return(rep(NaN, length(p)))
+  }
+  sapply(p, FUN = function(y) qGenPareto_s(y, t, alpha_ini, alpha_tail, truncation))
+}
+
+qGenPareto_s <- function(y, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation)) {
+    warning(valid.parameters.GenPareto(t, alpha_ini, alpha_tail, truncation, comment = TRUE))
+    return(NaN)
+  }
+  if (!is.nonnegative.finite.number(y) || y > 1) {
+    warning("y must be a number in [0,1].")
+    return(NaN)
+  }
+
+
+  if (y == 1) {
+    if (is.null(truncation)) {
+      return(Inf)
+    } else {
+      return(truncation)
+    }
+  }
+
+  if (!is.null(truncation)) {
+    if (!is.infinite(truncation)) {
+      scale <- pGenPareto(truncation, t, alpha_ini, alpha_tail)
+      y <- y * scale
+    }
+  }
+  result <- t * (1 + alpha_tail / alpha_ini * ((1 - y)^(-1/alpha_tail) - 1))
+}
+
+
+
+
+
+
+
+#' Simulation of the generalized Pareto Distribution
+#'
+#' @description Generates random deviates of a generalized Pareto distribution
+#'
+#' @param n Numeric. Number of observations.
+#' @param t Numeric vector. Thresholds of the generalized Pareto distributions
+#' @param alpha_ini Numeric vector. Initial Pareto alphas of the generalized Pareto distributions.
+#' @param alpha_tail Numeric vector. Tail Pareto alphas of the generalized Pareto distributions.
+#' @param truncation NULL or Numeric vector. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the generalized Pareto distributions are truncated at \code{truncation} (resampled generalized Pareto)
+#'
+#' @return A vector of \code{n} samples from the (truncated) generalized Pareto distribution with parameters \code{t}, \code{alpha_ini} and \code{alpha_tail}
+#'
+#' @examples
+#' rGenPareto(100, 1000, 2, 3)
+#' rGenPareto(100, 1000, 2, 3, truncation = 2000)
+#' rGenPareto(100, t = c(1, 10, 100, 1000), alpha_ini = 1, alpha_tail = c(2, 5))
+#'
+#' @export
+
+rGenPareto <- function(n, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!is.positive.finite.number(n)) {
+    warning("n must be a positive number.")
+    return(NaN)
+  }
+  n <- ceiling(n)
+  if (!is.positive.finite.vector(t)) {
+    warning("t must be a positive vector.")
+    return(NaN)
+  }
+  if (n %% length(t) != 0) {
+    warning("n is not a multiple of length(t).")
+    t <- rep(t, ceiling(n / length(t)))[1:n]
+  }
+  if (!is.positive.finite.vector(alpha_ini)) {
+    warning("alpha_ini must be a positive vector.")
+    return(NaN)
+  }
+  if (n %% length(alpha_ini) != 0) {
+    warning("n is not a multiple of length(alpha_ini).")
+    alpha_ini <- rep(alpha_ini, ceiling(n / length(alpha_ini)))[1:n]
+  }
+  if (!is.positive.finite.vector(alpha_tail)) {
+    warning("alpha_tail must be a positive vector.")
+    return(NaN)
+  }
+  if (n %% length(alpha_tail) != 0) {
+    warning("n is not a multiple of length(alpha_tail).")
+    alpha_tail <- rep(alpha_tail, ceiling(n / length(alpha_tail)))[1:n]
+  }
+
+  if (!is.null(truncation)) {
+    if (!is.positive.vector(truncation)) {
+      warning("truncation must be NULL or a positive vector (elements may be 'Inf').")
+      return(NaN)
+    }
+    if (n %% length(truncation) != 0) {
+      warning("n is not a multiple of length(truncation).")
+      truncation <- rep(truncation, ceiling(n / length(truncation)))[1:n]
+    }
+    if (sum(truncation <= t) > 0) {
+      warning("truncation must be > t.")
+      return(NaN)
+    }
+  }
+
+
+  FinvGenPareto <- function(x, t, alpha_ini, alpha_tail) {
+    return(t * (1 + alpha_tail / alpha_ini * ((1 - x)^(-1 / alpha_tail) - 1)))
+  }
+
+
+  u <- 0
+  o <- 1
+
+  if (!is.null(truncation)) {
+    o <- 1 - (1 + alpha_ini / alpha_tail * (truncation / t - 1))^(-alpha_tail)
+  }
+
+    return(FinvGenPareto(stats::runif(n, u, o), t , alpha_ini, alpha_tail))
+}
+
+
+
+#' Layer Mean of the generalized Pareto Distribution
+
+#' @description  Calculates the expected loss of a generalized Pareto distribution in a reinsurance layer
+#'
+#' @param Cover Numeric. Cover of the reinsurance layer. Use \code{Inf} for unlimited layers.
+#' @param AttachmentPoint Numeric. Attachment point of the reinsurance layer.
+#' @param alpha_ini Numeric. Initial Pareto alpha (at \code{t}).
+#' @param alpha_tail Numeric. Tail Pareto alpha.
+#' @param t Numeric. Threshold of the Pareto distribution. If \code{t} is \code{NULL} (default) then \code{t <- Attachment Point} is used.
+#' @param truncation Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the Pareto distribution is truncated at \code{truncation}.
+#'
+#' @return The expected loss of the (truncated) Pareto distribution with parameters \code{t} and \code{alpha} in the layer
+#'         \code{Cover} xs \code{AttachmentPoint}
+#'
+#' @examples
+#' GenPareto_Layer_Mean(4000, 1000, 1000, 1, 3)
+#' GenPareto_Layer_Mean(4000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3)
+#' GenPareto_Layer_Mean(4000, 1000, t = 5000, alpha_ini = 1, alpha_tail = 3)
+#' GenPareto_Layer_Mean(4000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3, truncation = 5000)
+#' GenPareto_Layer_Mean(9000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3, truncation = 5000)
+#'
+#' @export
+
+
+
+GenPareto_Layer_Mean <- function(Cover, AttachmentPoint, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!is.nonnegative.finite.number(AttachmentPoint)) {
+    warning("AttachmentPoint must be a non-negative number.")
+    return(NaN)
+  }
+  if(!is.nonnegative.number(Cover)) {
+    warning("Cover must be a non-negative number ('Inf' allowed).")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(alpha_ini)) {
+    warning("alpha_ini must be a positive number.")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(alpha_tail)) {
+    warning("alpha_tail must be a positive number.")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(t)) {
+    warning("t must be a positive number.")
+    return(NaN)
+  }
+  if (!is.null(truncation)) {
+    if (!is.positive.number(truncation)) {
+      warning("truncation must be NULL or a positive number ('Inf' allowed).")
+      return(NaN)
+    }
+    if (truncation <= t) {
+      warning("truncation must be larger than t.")
+      return(NaN)
+    }
+    if (truncation <= AttachmentPoint) {
+      return(0)
+    }
+    if (AttachmentPoint + Cover > truncation) {
+      Cover <- truncation - AttachmentPoint
+    }
+  }
+
+  if (is.infinite(Cover)) {
+    if (alpha_tail <= 1) {
+      return(Inf)
+    } else if (t <= AttachmentPoint) {
+      EP <- - t * alpha_tail / (alpha_ini * (1 - alpha_tail)) * (1 + alpha_ini / alpha_tail * (AttachmentPoint / t - 1))^(1 - alpha_tail)
+    } else {
+      EP <- t - AttachmentPoint
+      EP <- EP - t * alpha_tail / (alpha_ini * (1 - alpha_tail))
+    }
+    return(EP)
+  } else {
+    # Calculation ignoring truncation
+    if (t <= AttachmentPoint) {
+      if (alpha_tail == 1) {
+        # Pareto: EP <- t * (log(Cover + AttachmentPoint) - log(AttachmentPoint))
+        EP <- t * alpha_tail / alpha_ini * (log(1 + alpha_ini / alpha_tail * ((Cover + AttachmentPoint) / t - 1)) - log(1 + alpha_ini / alpha_tail * (AttachmentPoint / t - 1)))
+      } else {
+        # Pareto: EP <- t / (1 - alpha) * (((Cover + AttachmentPoint) / t)^(1 - alpha) - (AttachmentPoint / t)^(1 - alpha))
+        EP <- t * alpha_tail / (alpha_ini * (1 - alpha_tail)) * ((1 + alpha_ini / alpha_tail * ((Cover + AttachmentPoint) / t - 1))^(1 - alpha_tail) - (1 + alpha_ini / alpha_tail * (AttachmentPoint / t - 1))^(1 - alpha_tail))
+      }
+    } else if (t >= AttachmentPoint + Cover) {
+      EP <- Cover
+    } else {
+      EP <- t - AttachmentPoint
+      if (alpha_tail == 1) {
+        # Pareto: EP <- EP + t * (log(Cover + AttachmentPoint) - log(t))
+        EP <- EP +  t * alpha_tail / alpha_ini * log(1 + alpha_ini / alpha_tail * ((Cover + AttachmentPoint) / t - 1))
+      } else {
+        # Pareto: EP <- EP + t / (1 - alpha) * (((Cover + AttachmentPoint) / t)^(1 - alpha) - 1)
+        EP <- EP + t * alpha_tail / (alpha_ini * (1 - alpha_tail)) * ((1 + alpha_ini / alpha_tail * ((Cover + AttachmentPoint) / t - 1))^(1 - alpha_tail) - 1)
+      }
+    }
+
+    if (is.positive.finite.number(truncation)) {
+      # then Cover + AttachmentPoint <= truncation
+      # Adjustment for truncation
+      # Pareto: FQ_at_truncation <- (t / truncation)^alpha
+      FQ_at_truncation <- 1 - pGenPareto(truncation, t, alpha_ini, alpha_tail)
+      EP <- (EP - FQ_at_truncation * Cover) / (1 - FQ_at_truncation)
+    }
+    return(EP)
+  }
+
+}
+
+
+#' Second Layer Moment of the Generalized Pareto Distribution
+#'
+#' @description Calculates the second moment of a generalized Pareto distribution in a reinsurance layer
+#'
+#' @param Cover Numeric. Cover of the reinsurance layer. Use \code{Inf} for unlimited layers.
+#' @param AttachmentPoint Numeric. Attachment point of the reinsurance layer.
+#' @param alpha_ini Numeric. Initial Pareto alpha (at \code{t}).
+#' @param alpha_tail Numeric. Tail Pareto alpha.
+#' @param t Numeric. Threshold of the Pareto distribution. If \code{t} is \code{NULL} (default) then \code{t <- Attachment Point} is used
+#' @param truncation Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the Pareto distribution is truncated at \code{truncation}.
+#'
+#' @return The second moment of the (truncated) generalized Pareto distribution with parameters \code{t}, \code{alpha_ini} and \code{alpha_tail} in the layer
+#'         \code{Cover} xs \code{AttachmentPoint}
+#'
+#' @examples
+#' GenPareto_Layer_SM(4000, 1000, 1000, 1, 2)
+#' GenPareto_Layer_SM(4000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3)
+#' GenPareto_Layer_SM(4000, 1000, t = 5000, alpha_ini = 1, alpha_tail = 3)
+#' GenPareto_Layer_SM(4000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3, truncation = 5000)
+#' GenPareto_Layer_SM(9000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3, truncation = 5000)
+#'
+#' @export
+
+
+GenPareto_Layer_SM <- function(Cover, AttachmentPoint, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!is.nonnegative.finite.number(AttachmentPoint)) {
+    warning("AttachmentPoint must be a non-negative number.")
+    return(NaN)
+  }
+  if(!is.nonnegative.number(Cover)) {
+    warning("Cover must be a non-negative number ('Inf' allowed).")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(alpha_ini)) {
+    warning("alpha_ini must be a positive number.")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(alpha_tail)) {
+    warning("alpha_tail must be a positive number.")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(t)) {
+    warning("t must be a positive number.")
+    return(NaN)
+  }
+  if (!is.null(truncation)) {
+    if (!is.positive.number(truncation)) {
+      warning("truncation must be NULL or a positive number ('Inf' allowed).")
+      return(NaN)
+    }
+    if (truncation <= t) {
+      warning("truncation must be larger than t.")
+      return(NaN)
+    }
+    if (truncation <= AttachmentPoint) {
+      return(0)
+    }
+    if (AttachmentPoint + Cover > truncation) {
+      Cover <- truncation - AttachmentPoint
+    }
+  }
+
+  if (is.infinite(Cover)) {
+    if (alpha_tail <= 2) {
+      return(Inf)
+    }
+  }
+
+  G <- function(x) {
+    if (alpha_tail != 1) {
+      if (x > t) {
+        result <- t * alpha_tail / (alpha_ini * ( 1- alpha_tail)) * (1 + alpha_ini / alpha_tail * (x / t - 1))^(1 - alpha_tail)
+      } else {
+        result <- x - t + t * alpha_tail / (alpha_ini * ( 1 - alpha_tail))
+      }
+    } else {
+      if (x > t) {
+        result <- t * alpha_tail / alpha_ini * log(1 + alpha_ini / alpha_tail * (x / t - 1))
+      } else {
+        result <- x - t
+      }
+    }
+    return(result)
+  }
+  H <- function(x) {
+    if (alpha_tail == 1) {
+      if (x > t) {
+        result <- t * alpha_tail * x / alpha_ini * log(1 + alpha_ini / alpha_tail * (x / t - 1)) - t^2 * alpha_tail^2 / alpha_ini^2 * ((1 + alpha_ini / alpha_tail * (x / t - 1)) * log(1 + alpha_ini / alpha_tail * (x / t - 1)) - (1 + alpha_ini / alpha_tail * (x / t - 1)))
+      } else {
+        result <- x^2 / 2 - t^2 / 2 + t^2 * alpha_tail^2 / alpha_ini^2
+      }
+    } else if (alpha_tail == 2) {
+      if (x > t) {
+        result <- t * alpha_tail * x / (alpha_ini * (1 - alpha_tail)) * (1 + alpha_ini / alpha_tail * (x / t - 1))^(1 - alpha_tail) - t^2 * alpha_tail^2 / (alpha_ini^2 * (1 - alpha_tail)) * log(1 + alpha_ini / alpha_tail * (x / t - 1))
+      } else {
+        result <- x^2 / 2 - t^2 / 2 + t^2 * alpha_tail / (alpha_ini * (1 - alpha_tail))
+      }
+    } else {
+      if (is.infinite(x)) {
+        result <- 0
+      } else if (x > t) {
+        result <- t * alpha_tail * x / (alpha_ini * ( 1 - alpha_tail)) * (1 + alpha_ini / alpha_tail * (x / t - 1))^(1 - alpha_tail) - t^2 * alpha_tail^2 / (alpha_ini^2 * (1 - alpha_tail) * (2 - alpha_tail)) * (1 + alpha_ini / alpha_tail * (x / t - 1))^(2 - alpha_tail)
+      } else {
+        result <- x^2 / 2 - t^2 / 2 + t^2 * alpha_tail / (alpha_ini * ( 1 - alpha_tail)) - t^2 * alpha_tail^2 / (alpha_ini^2 * (1 - alpha_tail) * (2 - alpha_tail))
+      }
+    }
+    return(result)
+  }
+  phi_1 <- function(x) {
+    if (is.infinite(x)) {
+      result <- 0
+    } else {
+      result <- x * (1 - pGenPareto(x, t, alpha_ini, alpha_tail))
+    }
+    return(result)
+  }
+  phi_2 <- function(x) {
+    if (is.infinite(x)) {
+      result <- 0
+    } else {
+      result <- x^2 * (1 - pGenPareto(x, t, alpha_ini, alpha_tail))
+    }
+    return(result)
+  }
+
+  # calculation w/o truncation
+
+  result <- AttachmentPoint^2 * (pGenPareto(Cover + AttachmentPoint, t, alpha_ini, alpha_tail) - pGenPareto(AttachmentPoint, t, alpha_ini, alpha_tail))
+  result <- result - 2 * AttachmentPoint * (G(Cover + AttachmentPoint) - G(AttachmentPoint) - phi_1(Cover + AttachmentPoint) + phi_1(AttachmentPoint))
+  result <- result + 2 * (H(Cover + AttachmentPoint) - H(AttachmentPoint)) - phi_2(Cover + AttachmentPoint) + phi_2(AttachmentPoint)
+  if (!is.infinite(Cover)) {
+    result <- result + Cover^2 * (1 - pGenPareto(Cover + AttachmentPoint, t, alpha_ini, alpha_tail))
+  }
+
+
+  # adjustment for truncation
+
+  if (!is.null(truncation)) {
+    p <- 1 - pGenPareto(truncation, t, alpha_ini, alpha_tail)
+    result <- (result - p * Cover^2) / (1 - p)
+  }
+
+  return(result)
+}
+
+
+#' Layer Variance of the Generalized Pareto Distribution
+#'
+#' @description Calculates the variance of a generalized Pareto distribution in a reinsurance layer
+#'
+#' @param Cover Numeric. Cover of the reinsurance layer. Use \code{Inf} for unlimited layers.
+#' @param AttachmentPoint Numeric. Attachment point of the reinsurance layer.
+#' @param alpha_ini Numeric. Initial Pareto alpha (at \code{t}).
+#' @param alpha_tail Numeric. Tail Pareto alpha.
+#' @param t Numeric. Threshold of the Pareto distribution. If \code{t} is \code{NULL} (default) then \code{t <- Attachment Point} is used
+#' @param truncation Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the Pareto distribution is truncated at \code{truncation}.
+#'
+#' @return Variance of the (truncated) generalized Pareto distribution with parameters \code{t}, \code{alpha_ini} and \code{alpha_tail} in the layer
+#'         \code{Cover} xs \code{AttachmentPoint}
+#'
+#' @examples
+#' GenPareto_Layer_Var(4000, 1000, 1000, 1, 2)
+#' GenPareto_Layer_Var(4000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3)
+#' GenPareto_Layer_Var(4000, 1000, t = 5000, alpha_ini = 1, alpha_tail = 3)
+#' GenPareto_Layer_Var(4000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3, truncation = 5000)
+#' GenPareto_Layer_Var(9000, 1000, t = 1000, alpha_ini = 1, alpha_tail = 3, truncation = 5000)
+#'
+#' @export
+
+
+GenPareto_Layer_Var <- function(Cover, AttachmentPoint, t, alpha_ini, alpha_tail, truncation = NULL) {
+  if (!is.nonnegative.finite.number(AttachmentPoint)) {
+    warning("AttachmentPoint must be a non-negative number.")
+    return(NaN)
+  }
+  if(!is.nonnegative.number(Cover)) {
+    warning("Cover must be a non-negative number ('Inf' allowed).")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(alpha_ini)) {
+    warning("alpha_ini must be a positive number.")
+    return(NaN)
+  }
+  if (!is.positive.finite.number(alpha_tail)) {
+    warning("alpha_tail must be a positive number.")
+    return(NaN)
+  }
+  if (is.null(t)) {
+    if (AttachmentPoint == 0) {
+      warning("If Attachment Point is zero, then a t>0 has to be entered.")
+      return(NaN)
+    }
+    t <- AttachmentPoint
+  }
+  if (!is.positive.finite.number(t)) {
+    warning("t must be a positive number.")
+    return(NaN)
+  }
+  if (!is.null(truncation)) {
+    if (!is.positive.number(truncation)) {
+      warning("truncation must be NULL or a positive number ('Inf' allowed).")
+      return(NaN)
+    }
+    if (truncation <= t) {
+      warning("truncation must be larger than t.")
+      return(NaN)
+    }
+    if (truncation <= AttachmentPoint) {
+      return(0)
+    }
+    if (AttachmentPoint + Cover > truncation) {
+      Cover <- truncation - AttachmentPoint
+    }
+  }
+
+  if (is.infinite(Cover)) {
+    if (alpha_tail <= 2) {
+      return(Inf)
+    }
+  }
+
+  result <- GenPareto_Layer_SM(Cover, AttachmentPoint, t, alpha_ini, alpha_tail, truncation) - GenPareto_Layer_Mean(Cover, AttachmentPoint, t, alpha_ini, alpha_tail, truncation)^2
+
+  return(result)
+}
+
+
+
+#' Maximum Likelihood Estimation of the Pareto Alphas of a Generalized Pareto Distribution
+#'
+#' @description Calculates the maximum likelihood estimators of the parameters alpha_ini and alpha_tail of a generalized Pareto distribution
+#'
+#' @param losses Numeric vector. Losses that are used for the ML estimation.
+#' @param t Numeric or numeric vector. Threshold of the generalized Pareto distribution. Alternatively, \code{t} can be a vector of same length as \code{losses}. In this case \code{t[i]} is the reporting threshold of \code{losses[i]}.
+#' @param truncation Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the generalized Pareto distribution is truncated at \code{truncation}.
+#' @param tol Numeric. Desired accuracy  (only relevant in the truncated case).
+#' @param max_iterations Numeric. Maximum number of iteration in the case \code{truncation < Inf}  (only relevant in the truncated case).
+#' @param alpha_min Numeric. Lower bound for the estimated alphas.
+#' @param alpha_max Numeric. Upper bound for the estimated alphas.
+#'
+#' @return Maximum likelihood estimator for the parameters \code{alpha_ini} and \code{alpha_tail} of a generalized Pareto distribution with threshold \code{t} given the observations \code{losses}
+#'
+#' @examples
+#' losses <- rGenPareto(1000, 1000, 2,3)
+#' GenPareto_ML_Estimator_Alpha(losses, 1000)
+#' losses <- rGenPareto(1000, 1000, 2, 1, truncation = 10000)
+#' GenPareto_ML_Estimator_Alpha(losses, 1000)
+#' GenPareto_ML_Estimator_Alpha(losses, 1000, truncation = 10000)
+#'
+#' t <- rPareto(10000, 100, 2)
+#' alpha_ini <- 1
+#' alpha_tail <- 3
+#' losses <- rGenPareto(10000, t, alpha_ini, alpha_tail)
+#' GenPareto_ML_Estimator_Alpha(losses, t)
+#' losses <- rGenPareto(10000, t, alpha_ini, alpha_tail, truncation = 2 * max(t))
+#' GenPareto_ML_Estimator_Alpha(losses, t, truncation = 2 * max(t))
+#' @export
+
+GenPareto_ML_Estimator_Alpha <- function(losses, t, truncation = NULL, tol = 1e-7, max_iterations = 1000, alpha_min = 0.01, alpha_max = 100) {
+  if (!is.nonnegative.finite.vector(losses)) {
+    warning("losses must be non-negative.")
+    return(rep(NaN, 2))
+  }
+  if (!is.positive.finite.vector(t)) {
+    warning("t must be positive.")
+    return(rep(NaN, 2))
+  }
+  if (length(t) != 1 && length(t) != length(losses)) {
+    warning("t must have length 1 or same length as losses.")
+    return(rep(NaN, 2))
+  }
+  if (length(t) == 1) {
+    t <- rep(t, length(losses))
+  }
+
+  index <- losses > t
+  losses <- losses[index]
+  t <- t[index]
+  n <- length(losses)
+
+  if (!is.null(truncation)) {
+    if (!is.positive.number(truncation)) {
+      warning("truncation must be NULL or a positive number ('Inf' allowed).")
+      return(rep(NaN, 2))
+    }
+    if (truncation <= max(t)) {
+      warning("truncation must be larger than t")
+      return(rep(NaN, 2))
+    }
+    if (max(losses) >= truncation) {
+      warning("Losses must be < truncation.")
+      return(rep(NaN, 2))
+    }
+  }
+  if (is.null(truncation) || is.infinite(truncation)) {
+    negLogLikelihood <- function(alpha) {
+      - sum(log(alpha[1]) + (-alpha[2] - 1) * log(1 + alpha[1] / alpha[2] * (losses / t - 1)))
+    }
+  } else {
+    negLogLikelihood <- function(alpha) {
+      - sum(log(alpha[1]) + (-alpha[2] - 1) * log(1 + alpha[1] / alpha[2] * (losses / t - 1)) - log(1 - (1 + alpha[1] / alpha[2] * (truncation / t - 1))^(-alpha[2])))
+    }
+  }
+  alpha <- NULL
+  try(alpha <- stats::optim(c(1,1), negLogLikelihood, lower = rep(alpha_min, 2), upper = rep(alpha_max, 2), method = "L-BFGS-B")$par, silent = T)
+  if (is.null(alpha)) {
+    warning("No solution found.")
+    alpha <- rep(NaN, 2)
+  }
+  return(alpha)
+}
+
+
+
+
+
+
+
+dPanjer <- function(x, mean, dispersion) {
+  if (dispersion == 1) {
+    # Poisson distribution
+    result <- stats::dpois(x, mean)
+  } else if (dispersion < 1) {
+    # Binomial distribution
+    q <- dispersion
+    p <- 1 - q
+    # Not every dispersion < 1 can be realized with a binomial distribution. Round up number of trys n and recalculate p and q:
+    n <-  ceiling(mean / p)
+    p <- mean / n
+    q <- 1 - p
+    if (abs(dispersion - q) > 0.01) {
+      warning(paste0("Dispersion has been adjusted from ", round(dispersion, 2)," to ", round(q, 2), " to obtain a matching binomial distribution."))
+    }
+    result <- stats::dbinom(x, n, p)
+  } else {
+    # Negative binomial distribution
+    p <- 1 / dispersion
+    alpha <- mean / (dispersion - 1)
+    result <- stats::dnbinom(x, alpha, p)
+  }
+  return(result)
+}
+
+rPanjer <- function(n, mean, dispersion) {
+  if (dispersion == 1) {
+    # Poisson distribution
+    result <- stats::rpois(n, mean)
+  } else if (dispersion < 1) {
+    # Binomial distribution
+    q <- dispersion
+    p <- 1 - q
+    # Not every dispersion < 1 can be realized with a binomial distribution. Round up number of trys m and recalculate p and q:
+    m <-  ceiling(mean / p)
+    p <- mean / m
+    q <- 1 - p
+    if (abs(dispersion - q) > 0.01) {
+      warning(paste0("Dispersion has been adjusted from ", round(dispersion, 2)," to ", round(q, 2), " to obtain a matching binomial distribution."))
+    }
+    result <- stats::rbinom(n, m, p)
+  } else {
+    # Negative binomial distribution
+    p <- 1 / dispersion
+    alpha <- mean / (dispersion - 1)
+    result <- stats::rnbinom(n, alpha, p)
+  }
+  return(result)
+}
+
+
+
+

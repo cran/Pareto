@@ -107,7 +107,7 @@ is.PPP_Model <- function(x) {
 
 #' Check if an object is a valid PPP_Model
 #'
-#' @description Checks if an object is a PPP_Model object and whether it is valid for the use in functions like \code{PPP_Model_Exp_Layer_Loss}
+#' @description Checks if an object is a PPP_Model object and whether it is valid for the use in functions like \code{Layer_Mean}
 #'
 #' @param x Object to be checked.
 #' @param comment If FALSE then the function returns a boolean indicating whether \code{x} is a valid PPP_Model. If TRUE then the function returns a comment instead.
@@ -186,7 +186,7 @@ PPP_Model_Exp_Layer_Loss_s <- function(Cover, AttachmentPoint, PPP_Model) {
 
 #' Expected Loss of a Reinsurance Layer
 #'
-#' @description  Calculates the expected loss of a reinsurance layer for a PPP_Model
+#' @description  Calculates the expected loss of a reinsurance layer for a PPP_Model. This function is deprecated. Use \code{Layer_Mean} instead.
 #'
 #' @param Cover Numeric. Cover of the reinsurance layer. Use \code{Inf} for unlimited layers.
 #' @param AttachmentPoint Numeric. Attachment point of the reinsurance layer.
@@ -201,11 +201,20 @@ PPP_Model_Exp_Layer_Loss_s <- function(Cover, AttachmentPoint, PPP_Model) {
 #' Example1_AP
 #' Example1_Cov
 #' Example1_EL
-#' PPP_Model_Exp_Layer_Loss(Example1_Cov, Example1_AP, PPPM)
+#' Layer_Mean(PPPM, Example1_Cov, Example1_AP)
 #'
 #' @export
 
-PPP_Model_Exp_Layer_Loss <- Vectorize(PPP_Model_Exp_Layer_Loss_s, c("Cover", "AttachmentPoint"))
+PPP_Model_Exp_Layer_Loss <- function(Cover, AttachmentPoint, PPP_Model) {
+  .Deprecated("Layer_Mean")
+  PPP_Model_Exp_Layer_Loss_v(Cover, AttachmentPoint, PPP_Model)
+}
+
+
+
+
+PPP_Model_Exp_Layer_Loss_v <- Vectorize(PPP_Model_Exp_Layer_Loss_s, c("Cover", "AttachmentPoint"))
+
 
 
 PPP_Model_Layer_Var_s <- function(Cover, AttachmentPoint, PPP_Model) {
@@ -223,7 +232,7 @@ PPP_Model_Layer_Var_s <- function(Cover, AttachmentPoint, PPP_Model) {
 
 #' Variance of a Reinsurance Layer
 #'
-#' @description  Calculates the variance of the loss in a reinsurance layer for a PPP_Model
+#' @description  Calculates the variance of the loss in a reinsurance layer for a PPP_Model. This function is deprecated. Use \code{Layer_Var} instead.
 #'
 #' @param Cover Numeric. Cover of the reinsurance layer. Use \code{Inf} for unlimited layers.
 #' @param AttachmentPoint Numeric. Attachment point of the reinsurance layer.
@@ -235,11 +244,19 @@ PPP_Model_Layer_Var_s <- function(Cover, AttachmentPoint, PPP_Model) {
 #' PPPM <- PiecewisePareto_Match_Layer_Losses(Example1_AP, Example1_EL)
 #' PPPM
 #' Example1_Cov <- c(diff(Example1_AP), Inf)
-#' PPP_Model_Layer_Var(Example1_Cov, Example1_AP, PPPM)
+#' Layer_Var(PPPM, Example1_Cov, Example1_AP)
 #'
 #' @export
 
-PPP_Model_Layer_Var <- Vectorize(PPP_Model_Layer_Var_s, c("Cover", "AttachmentPoint"))
+PPP_Model_Layer_Var <- function(Cover, AttachmentPoint, PPP_Model) {
+  .Deprecated("Layer_Var")
+  PPP_Model_Layer_Var_v(Cover, AttachmentPoint, PPP_Model)
+}
+
+PPP_Model_Layer_Var_v <- Vectorize(PPP_Model_Layer_Var_s, c("Cover", "AttachmentPoint"))
+
+
+
 
 
 PPP_Model_Layer_Sd_s <- function(Cover, AttachmentPoint, PPP_Model) {
@@ -247,7 +264,7 @@ PPP_Model_Layer_Sd_s <- function(Cover, AttachmentPoint, PPP_Model) {
     warning(is.valid.PPP_Model(PPP_Model, comment = TRUE))
     return(NaN)
   } else {
-    return(sqrt(PPP_Model_Layer_Var(Cover, AttachmentPoint, PPP_Model)))
+    return(sqrt(PPP_Model_Layer_Var_v(Cover, AttachmentPoint, PPP_Model)))
   }
 }
 
@@ -266,11 +283,19 @@ PPP_Model_Layer_Sd_s <- function(Cover, AttachmentPoint, PPP_Model) {
 #' PPPM <- PiecewisePareto_Match_Layer_Losses(Example1_AP, Example1_EL)
 #' PPPM
 #' Example1_Cov <- c(diff(Example1_AP), Inf)
-#' PPP_Model_Layer_Sd(Example1_Cov, Example1_AP, PPPM)
+#' Layer_Sd(PPPM, Example1_Cov, Example1_AP)
 #'
 #' @export
 
-PPP_Model_Layer_Sd <- Vectorize(PPP_Model_Layer_Sd_s, c("Cover", "AttachmentPoint"))
+PPP_Model_Layer_Sd <- function(Cover, AttachmentPoint, PPP_Model) {
+  .Deprecated("Layer_Sd")
+  PPP_Model_Layer_Sd_v(Cover, AttachmentPoint, PPP_Model)
+}
+
+PPP_Model_Layer_Sd_v <- Vectorize(PPP_Model_Layer_Sd_s, c("Cover", "AttachmentPoint"))
+
+
+
 
 
 
@@ -298,11 +323,20 @@ PPP_Model_Excess_Frequency_s <- function(x, PPP_Model) {
 #' @examples
 #' PPPM <- PiecewisePareto_Match_Layer_Losses(Example1_AP, Example1_EL)
 #' PPPM
-#' PPP_Model_Excess_Frequency(c(-Inf, 0, 1000, 2000, 3000, Inf), PPPM)
+#' Excess_Frequency(PPPM, c(-Inf, 0, 1000, 2000, 3000, Inf))
 #'
 #' @export
 
-PPP_Model_Excess_Frequency <- Vectorize(PPP_Model_Excess_Frequency_s, c("x"))
+PPP_Model_Excess_Frequency <- function(x, PPP_Model) {
+  .Deprecated("Excess_Frequency")
+  PPP_Model_Excess_Frequency_v(x, PPP_Model)
+}
+
+
+PPP_Model_Excess_Frequency_v <- Vectorize(PPP_Model_Excess_Frequency_s, c("x"))
+
+
+
 
 
 #' Simulate Losses with a PPP_Model
@@ -318,12 +352,12 @@ PPP_Model_Excess_Frequency <- Vectorize(PPP_Model_Excess_Frequency_s, c("x"))
 #' PPPM <- PiecewisePareto_Match_Layer_Losses(c(1000, 2000, 3000), c(2000, 1000, 500),
 #'                                            truncation = 10000, truncation_type = "wd")
 #' PPPM
-#' Simulated_Losses <- PPP_Model_Simulate(100, PPPM)
-#' Simulated_Losses
+#' Simulate_Losses(PPPM, 100)
 #'
 #' @export
 
 PPP_Model_Simulate <- function(n, PPP_Model) {
+  .Deprecated("Simulate_Losses")
   if (!is.valid.PPP_Model(PPP_Model)) {
     warning(is.valid.PPP_Model(PPP_Model, comment = TRUE))
     return(NaN)
@@ -338,56 +372,6 @@ PPP_Model_Simulate <- function(n, PPP_Model) {
   claims <- rPiecewisePareto(sum(claim_count), PPP_Model$t, PPP_Model$alpha, PPP_Model$truncation, PPP_Model$truncation_type)
   result <- matrix(NaN, nrow = n, ncol = max(claim_count))
   result[col(result) <= claim_count] <- claims
-  return(result)
-}
-
-dPanjer <- function(x, mean, dispersion) {
-  if (dispersion == 1) {
-    # Poisson distribution
-    result <- stats::dpois(x, mean)
-  } else if (dispersion < 1) {
-    # Binomial distribution
-    q <- dispersion
-    p <- 1 - q
-    # Not every dispersion < 1 can be realized with a binomial distribution. Round up number of trys n and recalculate p and q:
-    n <-  ceiling(mean / p)
-    p <- mean / n
-    q <- 1 - p
-    if (abs(dispersion - q) > 0.01) {
-      warning(paste0("Dispersion has been adjusted from ", round(dispersion, 2)," to ", round(q, 2), " to obtain a matching binomial distribution."))
-    }
-    result <- stats::dbinom(x, n, p)
-  } else {
-    # Negative binomial distribution
-    p <- 1 / dispersion
-    alpha <- mean / (dispersion - 1)
-    result <- stats::dnbinom(x, alpha, p)
-  }
-  return(result)
-}
-
-rPanjer <- function(n, mean, dispersion) {
-  if (dispersion == 1) {
-    # Poisson distribution
-    result <- stats::rpois(n, mean)
-  } else if (dispersion < 1) {
-    # Binomial distribution
-    q <- dispersion
-    p <- 1 - q
-    # Not every dispersion < 1 can be realized with a binomial distribution. Round up number of trys m and recalculate p and q:
-    m <-  ceiling(mean / p)
-    p <- mean / m
-    q <- 1 - p
-    if (abs(dispersion - q) > 0.01) {
-      warning(paste0("Dispersion has been adjusted from ", round(dispersion, 2)," to ", round(q, 2), " to obtain a matching binomial distribution."))
-    }
-    result <- stats::rbinom(n, m, p)
-  } else {
-    # Negative binomial distribution
-    p <- 1 / dispersion
-    alpha <- mean / (dispersion - 1)
-    result <- stats::rnbinom(n, alpha, p)
-  }
   return(result)
 }
 
