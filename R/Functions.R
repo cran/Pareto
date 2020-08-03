@@ -1345,9 +1345,9 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     return(Results)
   }
   k <-length(Attachment_Points)
-  if (!is.positive.finite.vector(Expected_Layer_Losses)) {
-    warning("Expected_Layer_Losses must be a vector with positive entries.")
-    Results$Comment <- "Expected_Layer_Losses must be a vector with positive entries."
+  if (!is.nonnegative.finite.vector(Expected_Layer_Losses)) {
+    warning("Expected_Layer_Losses must be a vector with nonnegative entries.")
+    Results$Comment <- "Expected_Layer_Losses must be a vector with nonnegative entries."
     Results$Status <- 2
     return(Results)
   }
@@ -1369,10 +1369,15 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     Results$Status <- 2
     return(Results)
   }
-  if (!is.null(Frequencies)) {
-    if (!is.positive_or_NA.finite.vector(Frequencies)) {
-      warning("Frequencies must be NULL or a vector with positive entries (NAs allowed).")
-      Results$Comment <- "Frequencies must be NULL or a vector with positive entries (NAs allowed)."
+
+
+  # define Frequencies vector of length k
+  if (is.null(Frequencies)) {
+    Frequencies <- rep(NaN, k)
+  } else {
+    if (!is.nonnegative_or_NA.finite.vector(Frequencies)) {
+      warning("Frequencies must be NULL or a vector with nonnegative entries (NAs allowed).")
+      Results$Comment <- "Frequencies must be NULL or a vector with nonnegative entries (NAs allowed)."
       Results$Status <- 2
       return(Results)
     }
@@ -1383,27 +1388,15 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
       return(Results)
     }
   }
-  if (!is.null(TotalLoss_Frequencies)) {
-    if (!is.positive.finite.vector(TotalLoss_Frequencies)) {
-      warning("TotalLoss_Frequencies must be NULL or a vector with positive entries.")
-      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies must be NULL or a vector with positive entries. TotalLoss_Frequencies are ignored! ")
+  if (!is.null(FQ_at_highest_AttPt)) {
+    if (!is.nonnegative.finite.number(FQ_at_highest_AttPt)) {
+      warning("FQ_at_highest_AttPt must be NULL or a positive number.")
+      Results$Comment <- paste0(Results$Comment, "FQ_at_highest_AttPt must be NULL or a positive number. FQ_at_highest_AttPt is ignored! ")
       Results$Status <- 1
-      TotalLoss_Frequencies <- NULL
-    } else if (length(TotalLoss_Frequencies) != (k-1)) {
-      warning("TotalLoss_Frequencies must have length of Frequencies - 1.")
-      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies must have length of Frequencies - 1. TotalLoss_Frequencies are ignored! ")
-      Results$Status <- 1
-      TotalLoss_Frequencies <- NULL
-    } else if (is.null(Frequencies)) {
-      warning("TotalLoss_Frequencies must be NULL if Frequencies is NULL.")
-      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies must be NULL if Frequencies is NULL. TotalLoss_Frequencies are ignored! ")
-      Results$Status <- 1
-      TotalLoss_Frequencies <- NULL
-    } else if (!is.positive.finite.vector(Frequencies)) {
-      warning("Frequencies must be positive if TotalLoss_Frequencies are used.")
-      Results$Comment <- paste0(Results$Comment, "Frequencies must be positive if TotalLoss_Frequencies are used (no NAs allowed). TotalLoss_Frequencies are ignored! ")
-      Results$Status <- 1
-      TotalLoss_Frequencies <- NULL
+      FQ_at_highest_AttPt <- NULL
+    } else {
+      Frequencies[k] <- FQ_at_highest_AttPt
+      FQ_at_highest_AttPt <- NULL
     }
   }
   if (!is.null(FQ_at_lowest_AttPt)) {
@@ -1412,16 +1405,45 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
       Results$Comment <- paste0(Results$Comment, "FQ_at_lowest_AttPt must be NULL or a positive number. FQ_at_lowest_AttPt is ignored! ")
       Results$Status <- 1
       FQ_at_lowest_AttPt <- NULL
+    } else {
+      Frequencies[1] <- FQ_at_lowest_AttPt
+      FQ_at_lowest_AttPt <- NULL
     }
   }
-  if (!is.null(FQ_at_highest_AttPt)) {
-    if (!is.positive.finite.number(FQ_at_highest_AttPt)) {
-      warning("FQ_at_highest_AttPt must be NULL or a positive number.")
-      Results$Comment <- paste0(Results$Comment, "FQ_at_highest_AttPt must be NULL or a positive number. FQ_at_highest_AttPt is ignored! ")
+
+
+  # define TotalLoss_Frequencies vector of length k-1
+  if (is.null(TotalLoss_Frequencies)) {
+    TotalLoss_Frequencies <- rep(NaN, k-1)
+  } else {
+    if (!is.nonnegative_or_NA.finite.vector(TotalLoss_Frequencies)) {
+      warning("TotalLoss_Frequencies must be NULL or a vector with nonnegative entries (NAs allowed).")
+      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies must be NULL or a vector with nonnegative entries (NAs allowed). TotalLoss_Frequencies are ignored! ")
       Results$Status <- 1
-      FQ_at_highest_AttPt <- NULL
+      TotalLoss_Frequencies <- rep(NaN, k-1)
+    } else if (length(TotalLoss_Frequencies) != (k-1)) {
+      warning("TotalLoss_Frequencies must have length of Frequencies - 1.")
+      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies must have length of Frequencies - 1. TotalLoss_Frequencies are ignored! ")
+      Results$Status <- 1
+      TotalLoss_Frequencies <- rep(NaN, k-1)
+    }
+    if (sum(!is.na(TotalLoss_Frequencies[is.na(Frequencies[-1])])) > 0) {
+      warning("TotalLoss_Frequencies[i] set to NA where Frequencies[i+1] is NA.")
+      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies[i] set to NA where Frequencies[i+1] is NA. TotalLoss_Frequencies are ignored! ")
+      Results$Status <- 1
+      TotalLoss_Frequencies[is.na(Frequencies[-1])] <- NA
+    }
+    if (sum(TotalLoss_Frequencies < Frequencies[-1], na.rm = TRUE) > 0) {
+      warning("TotalLoss_Frequencies[i] set to Frequencies[i+1] where TotalLoss_Frequencies[i] < Frequencies[i+1].")
+      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies[i] set to Frequencies[i+1] where TotalLoss_Frequencies[i] < Frequencies[i+1]. TotalLoss_Frequencies are ignored! ")
+      Results$Status <- 1
+      TotalLoss_Frequencies <- pmax(TotalLoss_Frequencies, Frequencies[-1])
     }
   }
+
+
+
+
   if (!is.TRUEorFALSE(minimize_ratios)) {
     minimize_ratios <- TRUE
     warning("minimize_ratios must be TRUE or FALSE. TRUE used.")
@@ -1487,25 +1509,80 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     Results$truncation_type <- truncation_type
   }
 
+
+  # Handle case where one of the Expected_Layer_Losses is zero
+
+  last_exp_loss_zero <- FALSE
+  # if last_exp_loss_zero == TRUE then last Pareto alpha will be set to alpha_max at the end of the function
+
+  if (min(Expected_Layer_Losses) == 0) {
+    index <- min(which(Expected_Layer_Losses == 0))
+    truncation <- NULL
+    if (index < k) {
+      if (max(Expected_Layer_Losses[(index+1):k]) > 0) {
+        warning(paste0("Expected_Layer_Losses[", index, "] == 0 although Expected_Layer_Losses[", index + min(which(Expected_Layer_Losses[(index+1):k] > 0)), "] > 0."))
+        Results$Comment <- paste0("Expected_Layer_Losses[", index, "] == 0 although Expected_Layer_Losses[", min(which(Expected_Layer_Losses[(index+1):k] > 0)), "] > 0.")
+        Results$Status <- 2
+        return(Results)
+      }
+    }
+    # if Expected_Layer_Losses[1] == 0 then return PPP_Model with FQ = 0
+    if (index == 1) {
+      Results$t <- Attachment_Points[1]
+      Results$alpha <- 2
+      Results$FQ <- 0
+      Results$Status <- 0
+      return(Results)
+    }
+
+
+    last_exp_loss_zero <- TRUE
+
+    k <- index
+    Expected_Layer_Losses <- Expected_Layer_Losses[1:k]
+    Attachment_Points <- Attachment_Points[1:k]
+    Frequencies <- Frequencies[1:k]
+    TotalLoss_Frequencies <- TotalLoss_Frequencies[1:(k-1)]
+    if (is.na(Frequencies[k])) {
+      temp <- Pareto_Extrapolation(Attachment_Points[k] - Attachment_Points[k-1], Attachment_Points[k-1], Inf, Attachment_Points[k], 2, truncation = truncation) * Expected_Layer_Losses[k-1]
+      if (Unlimited_Layers) {
+        Expected_Layer_Losses <- Expected_Layer_Losses + temp
+      } else {
+        Expected_Layer_Losses[k] <- Expected_Layer_Losses[k] + temp
+      }
+      Frequencies[k] <- Expected_Layer_Losses[k] / Pareto_Layer_Mean(Inf, Attachment_Points[k], 2, truncation = truncation)
+    } else {
+      temp_rol <- Expected_Layer_Losses[k-1] / (Attachment_Points[k] - Attachment_Points[k-1])
+      if (Frequencies[k] >= temp_rol * (1 - RoL_tolerance / 2)) Frequencies[k] <- temp_rol * (1 - RoL_tolerance / 2)
+      if (Frequencies[k] <= RoL_tolerance / 2) Frequencies[k] <- min(RoL_tolerance / 2, temp_rol / 2)
+      # temp_fq <- Frequencies[k]
+      # if (!is.na(TotalLoss_Frequencies[k-1])) {
+      #   if (TotalLoss_Frequencies[k-1] >= temp_rol * (1 - RoL_tolerance / 2)) TotalLoss_Frequencies[k-1] <- temp_rol * (1 - RoL_tolerance / 2)
+      #   if (TotalLoss_Frequencies[k-1] <= RoL_tolerance / 2) TotalLoss_Frequencies[k-1] <- min(RoL_tolerance / 2, temp_rol / 2)
+      #   temp_fq <- TotalLoss_Frequencies[k-1]
+      # }
+      # Frequencies[k] <- temp_fq
+      temp <- Pareto_Layer_Mean(Inf, Attachment_Points[k], 2) * Frequencies[k]
+      if (Unlimited_Layers) {
+        Expected_Layer_Losses <- Expected_Layer_Losses + temp
+      } else {
+        Expected_Layer_Losses[k] <- Expected_Layer_Losses[k] + temp
+      }
+    }
+  }
+
+
+
+
   if (k == 1) {
     Results$t <- Attachment_Points
-    fq <- NULL
-    if (!is.null(Frequencies) && !is.na(Frequencies)) {
-      fq <- Frequencies
-    }
-    if (!is.null(FQ_at_highest_AttPt)) {
-      fq <- FQ_at_highest_AttPt
-    }
-    if (!is.null(FQ_at_lowest_AttPt)) {
-      fq <- FQ_at_lowest_AttPt
-    }
-    if (is.null(fq)) {
+    if (is.na(Frequencies)) {
       alpha <- 2
       Results$alpha <- alpha
       Results$FQ <- Expected_Layer_Losses / Pareto_Layer_Mean(Inf, Attachment_Points, alpha, truncation = truncation)
     } else {
       alpha <- NA
-      try(alpha <- Pareto_Find_Alpha_btw_FQ_Layer(Attachment_Points, fq, Inf, Attachment_Points, Expected_Layer_Losses, truncation = truncation), silent = TRUE)
+      try(alpha <- Pareto_Find_Alpha_btw_FQ_Layer(Attachment_Points, Frequencies, Inf, Attachment_Points, Expected_Layer_Losses, truncation = truncation), silent = TRUE)
       if (is.na(alpha)) {
         warning("truncation too low.")
         Results$t <- NULL
@@ -1515,7 +1592,7 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
         return(Results)
       } else {
         Results$alpha <- alpha
-        Results$FQ <- fq
+        Results$FQ <- Frequencies
       }
     }
     if (Results$Comment == "") {Results$Comment <- "OK"}
@@ -1551,19 +1628,8 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     Limits[k-1] <- Attachment_Points[k] - Attachment_Points[k-1]
     Limits <- c(Limits, Inf)
 
-    if (is.null(Frequencies)) {
-      Frequencies <- rep(NaN, k)
-    } else {
-      Frequencies <- c(Frequencies, NaN)
-    }
-    if (!is.null(FQ_at_lowest_AttPt)) {
-      Frequencies[1] <- FQ_at_lowest_AttPt
-      FQ_at_lowest_AttPt <- NULL
-    }
-    if (!is.null(FQ_at_highest_AttPt)) {
-      Frequencies[k-1] <- FQ_at_highest_AttPt
-      FQ_at_highest_AttPt <- NULL
-    }
+    Frequencies <- c(Frequencies, NaN)
+
     if (is.na(Frequencies[k-1])) {
       alpha_wd <- NA
       try(alpha_wd <- Pareto_Find_Alpha_btw_Layers(Limits[k-2], Attachment_Points[k-2], ELL[k-2], Limits[k-1], Attachment_Points[k-1], ELL[k-1], truncation = Attachment_Points[k]), silent = TRUE)
@@ -1592,10 +1658,9 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     # redefine Frequencies (from now on frequencies of the corresponding non-truncated distribution):
     Frequencies <- Frequencies + add_fq
 
-    if (!is.null(TotalLoss_Frequencies)) {
-      TotalLoss_Frequencies <- c(TotalLoss_Frequencies, 0)
-      TotalLoss_Frequencies <- TotalLoss_Frequencies + add_fq
-    }
+    TotalLoss_Frequencies <- c(TotalLoss_Frequencies, 0)
+    TotalLoss_Frequencies <- TotalLoss_Frequencies + add_fq
+
     # redefine ELL (from now on expected layer losses of the corresponding non-truncated distribution):
     ELL <- ELL + Limits[1:(k-1)] * add_fq
     ELL <- c(ELL, NaN)
@@ -1609,6 +1674,13 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
 
   RoLs <- ELL / Limits
   Merged_Layer <- rep(FALSE, k)
+
+  if (max(RoLs[2:k] / RoLs[1:(k-1)]) > 1 + RoL_tolerance) {
+    warning("RoLs not strictly decreasing. Layers have been merged.")
+    Results$Comment <- paste0(Results$Comment, "RoLs not strictly decreasing. Layers have been merged. ")
+    Results$Status <- 1
+  }
+
   if (max(RoLs[2:k] / RoLs[1:(k-1)]) >= 1 - RoL_tolerance) {
     repeat {
       if (k<3) { # should not happen ...
@@ -1623,21 +1695,14 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
       Attachment_Points <- Attachment_Points[-(pos+1)]
       Limits[pos] <- Limits[pos] + Limits[pos+1]
       Limits <- Limits[-(pos+1)]
-      if (!is.null(Frequencies)) {
-        Frequencies <- Frequencies[-(pos+1)]
-      }
-      if (!is.null(TotalLoss_Frequencies)) {
-        TotalLoss_Frequencies <- TotalLoss_Frequencies[-pos]
-      }
+      Frequencies <- Frequencies[-(pos+1)]
+      TotalLoss_Frequencies <- TotalLoss_Frequencies[-pos]
       Merged_Layer <- Merged_Layer[-(pos+1)]
       Merged_Layer[pos] <- TRUE
       k <- k-1
       RoLs <- ELL / Limits
       if (max(RoLs[2:k] / RoLs[1:(k-1)]) < 1 - RoL_tolerance) {break}
     }
-    warning("RoLs not strictly decreasing. Layers have been merged.")
-    Results$Comment <- paste0(Results$Comment, "RoLs not strictly decreasing. Layers have been merged. ")
-    Results$Status <- 1
   }
 
   if (!is.null(truncation)) {
@@ -1651,25 +1716,28 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     }
   }
 
-  if (!is.null(Frequencies)) {
-    if (max(RoLs/Frequencies, na.rm = T) >= 1 - RoL_tolerance / 2) {
-      Frequencies <- NULL
-      TotalLoss_Frequencies <- NULL
-      warning("Layer entry frequencies not strictly greater than RoLs.")
-      Results$Comment <- paste0(Results$Comment, "Layer entry frequencies not strictly greater than RoLs. Frequencies not used!  ")
-      Results$Status <- 1
+  for (i in 1:(k-1)) {
+    if (!is.na(Frequencies[i]) && Frequencies[i] < RoLs[i] * (1 + RoL_tolerance / 2)) {
+      if (Frequencies[i] < RoLs[i] * (1 - RoL_tolerance / 2)) {
+        warning("Layer entry frequency smaller than RoL. Frequency ajusted.")
+        Results$Comment <- paste0(Results$Comment, "Layer entry frequency smaller than RoL. Frequency ajusted. ")
+        Results$Status <- 1
+      }
+      Frequencies[i] <- RoLs[i] * (1 + RoL_tolerance / 2)
     }
-    if (min(RoLs[1:(k-1)]/Frequencies[2:k], na.rm = T) <= 1 + RoL_tolerance / 2) {
-      Frequencies <- NULL
-      TotalLoss_Frequencies <- NULL
-      warning("Layer exit frequencies not strictly less than RoLs.")
-      Results$Comment <- paste0(Results$Comment, "Layer exit frequencies not strictly less than RoLs. Frequencies not used! ")
-      Results$Status <- 1
+    if (!is.na(Frequencies[i+1]) && Frequencies[i+1] > RoLs[i] * (1 - RoL_tolerance / 2)) {
+      if (Frequencies[i+1] > RoLs[i] * (1 + RoL_tolerance / 2)) {
+        warning("Layer entry frequency larger than RoL of previous layer. Frequency ajusted.")
+        Results$Comment <- paste0(Results$Comment, "Layer entry frequency larger than RoL of previous layer. Frequency ajusted. ")
+        Results$Status <- 1
+      }
+      Frequencies[i+1] <- RoLs[i] * (1 - RoL_tolerance / 2)
+    }
+    if (!is.na(TotalLoss_Frequencies[i])) {
+      if (TotalLoss_Frequencies[i] > RoLs[i] * (1 - RoL_tolerance / 2)) TotalLoss_Frequencies[i] <- RoLs[i] * (1 - RoL_tolerance / 2)
     }
   }
-  if (is.null(Frequencies)) {
-    Frequencies <- rep(NaN, k)
-  }
+
   alpha_between_layers <- rep(NaN, k-1)
   for (i in 1:(k-1)) {
     if (i < k-1 && is.na(Frequencies[i+1])) {
@@ -1730,38 +1798,6 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     }
   }
 
-  if (!is.null(FQ_at_lowest_AttPt)) {
-    if (FQ_at_lowest_AttPt > RoLs[1] * (1 + RoL_tolerance / 2)) {
-      Frequencies[1] <- FQ_at_lowest_AttPt
-    } else {
-      warning("FQ_at_lowest_AttPt too small. Not used!")
-      Results$Comment <- paste0(Results$Comment, "FQ_at_lowest_AttPt too small. Not used! ")
-      Results$Status <- 1
-    }
-  }
-  if (!is.null(FQ_at_highest_AttPt)) {
-    if (FQ_at_highest_AttPt < RoLs[k-1] * (1 - RoL_tolerance / 2)) {
-      Frequencies[k] <- FQ_at_highest_AttPt
-    } else {
-      warning("FQ_at_highest_AttPt too large.")
-      Results$Comment <- paste0(Results$Comment, "FQ_at_highest_AttPt too large. Not used! ")
-      Results$Status <- 1
-    }
-  }
-  if (!is.null(TotalLoss_Frequencies)) {
-    if (max(TotalLoss_Frequencies - RoLs[1:(k-1)]) >= 0) {
-      TotalLoss_Frequencies <- NULL
-      warning("TotalLoss_Frequencies not strictly less than RoLs.")
-      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies not strictly less than RoLs. TotalLoss_Frequencies not used! ")
-      Results$Status <- 1
-    }
-    if (max(TotalLoss_Frequencies - Frequencies[2:k]) < 0) {
-      TotalLoss_Frequencies <- NULL
-      warning("TotalLoss_Frequencies not greater than or equal to Frequencies.")
-      Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies not greater than or equal to Frequencies. TotalLoss_Frequencies not used! ")
-      Results$Status <- 1
-    }
-  }
 
   # Check whether frequency at highest attachment point is large enough in case of truncation
   if (!is.null(truncation)) {
@@ -1776,31 +1812,40 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     }
   }
 
-  if (!is.null(TotalLoss_Frequencies)) {
-    if (max(TotalLoss_Frequencies - Frequencies[2:k]) > 0) {
-      repeat {
-        pos <- order(TotalLoss_Frequencies - Frequencies[2:k])[k-1]
-        new_AttPoint <- Attachment_Points[pos+1] * (Frequencies[pos+1]/TotalLoss_Frequencies[pos])^(1/alpha_max)
-        if (new_AttPoint <= Attachment_Points[pos]) {
-          warning("It is not possible to fulfill all TotalLoss_Frequencies.")
-          Results$Comment <- paste0(Results$Comment, "It is not possible to fulfill all TotalLoss_Frequencies. ")
-          Results$Status <- 1
-          TotalLoss_Frequencies[pos] <- Frequencies[pos+1]
+  TotalLoss_Frequencies[is.na(TotalLoss_Frequencies)] <- Frequencies[-1][is.na(TotalLoss_Frequencies)]
+  TotalLoss_Frequencies <- pmax(TotalLoss_Frequencies, Frequencies[-1])
+  if (max(TotalLoss_Frequencies - RoLs[1:(k-1)]) >= 0) {
+    TotalLoss_Frequencies <- NULL
+    warning("TotalLoss_Frequencies not strictly less than RoLs. TotalLoss_Frequencies adjusted.")
+    Results$Comment <- paste0(Results$Comment, "TotalLoss_Frequencies not strictly less than RoLs. TotalLoss_Frequencies adjusted! ")
+    Results$Status <- 1
+    TotalLoss_Frequencies <- pmin(TotalLoss_Frequencies, RoLs[1:(k-1)] * (1 - RoL_tolerance / 2))
+  }
+
+
+  if (max(TotalLoss_Frequencies - Frequencies[-1]) > 0) {
+    repeat {
+      pos <- order(TotalLoss_Frequencies - Frequencies[-1])[k-1]
+      new_AttPoint <- Attachment_Points[pos+1] * (Frequencies[pos+1]/TotalLoss_Frequencies[pos])^(1/alpha_max)
+      if (new_AttPoint <= Attachment_Points[pos]) {
+        warning("It is not possible to fulfill all TotalLoss_Frequencies.")
+        Results$Comment <- paste0(Results$Comment, "It is not possible to fulfill all TotalLoss_Frequencies. ")
+        Results$Status <- 1
+        TotalLoss_Frequencies[pos] <- Frequencies[pos+1]
+      } else {
+        Attachment_Points <- c(Attachment_Points[1:pos], new_AttPoint, Attachment_Points[(pos+1):k])
+        Frequencies <- c(Frequencies[1:pos], TotalLoss_Frequencies[pos], Frequencies[(pos+1):k])
+        if (pos <= k-2) {
+          TotalLoss_Frequencies <- c(TotalLoss_Frequencies[1:pos], Frequencies[pos+2], TotalLoss_Frequencies[(pos+1):(k-1)])
         } else {
-          Attachment_Points <- c(Attachment_Points[1:pos], new_AttPoint, Attachment_Points[(pos+1):k])
-          Frequencies <- c(Frequencies[1:pos], TotalLoss_Frequencies[pos], Frequencies[(pos+1):k])
-          if (pos <= k-2) {
-            TotalLoss_Frequencies <- c(TotalLoss_Frequencies[1:pos], Frequencies[pos+2], TotalLoss_Frequencies[(pos+1):(k-1)])
-          } else {
-            TotalLoss_Frequencies <- c(TotalLoss_Frequencies[1:pos], Frequencies[pos+2])
-          }
-          new_ELL <- Pareto_Layer_Mean(Attachment_Points[pos+2] - Attachment_Points[pos+1], Attachment_Points[pos+1], alpha_max) * Frequencies[pos+1]
-          ELL <- c(ELL[1:pos], new_ELL, ELL[(pos+1):k])
-          ELL[pos] <- ELL[pos] - new_ELL
-          k <- k+1
+          TotalLoss_Frequencies <- c(TotalLoss_Frequencies[1:pos], Frequencies[pos+2])
         }
-        if (max(TotalLoss_Frequencies - Frequencies[2:k]) <= 0) {break}
+        new_ELL <- Pareto_Layer_Mean(Attachment_Points[pos+2] - Attachment_Points[pos+1], Attachment_Points[pos+1], alpha_max) * Frequencies[pos+1]
+        ELL <- c(ELL[1:pos], new_ELL, ELL[(pos+1):k])
+        ELL[pos] <- ELL[pos] - new_ELL
+        k <- k+1
       }
+      if (max(TotalLoss_Frequencies - Frequencies[-1]) <= 0) {break}
     }
   }
 
@@ -1841,6 +1886,14 @@ PiecewisePareto_Match_Layer_Losses <- function(Attachment_Points, Expected_Layer
     Results$FQ <- Frequencies[1] - Frequencies[k]
   } else {
     Results$FQ <- Frequencies[1]
+  }
+  if (last_exp_loss_zero) {
+    Results$alpha[length(Results$alpha)] <- alpha_max
+    l <- length(Results$alpha)
+    if (l > 1 && abs(alpha_max - Results$alpha[l-1]) < merge_tolerance) {
+      Results$alpha <- Results$alpha[1:(l-1)]
+      Results$t <- Results$t[1:(l-1)]
+    }
   }
   if (Results$Comment == "") {Results$Comment <- "OK"}
 
@@ -3551,5 +3604,179 @@ rPanjer <- function(n, mean, dispersion) {
 }
 
 
+
+#' Fit a Tailor-Made Collective Model that Satisfies a Wishlist of Conditions
+#'
+#' @description Fits a PPP_Model that fulfils a wishlist of conditions (expected layer losses and excess frequencies)
+#'
+#' @param Covers Numeric vector. Vector containing the covers of the layers from the wishlist.
+#' @param Attachment_Points Numeric vector. Vector containing the attachment points of the layers from the wishlist.
+#' @param Expected_Layer_Losses Numeric vector. Vector containing the expected losses of the layers from the wishlist.
+#' @param Thresholds Numeric vector. Contains the thresholds from the whishlist for which excess frequencies are given.
+#' @param Frequencies Numeric vector. Expected frequencies excess the \code{Thresholds} from the wishlist.
+#' @param t_1 Numerical. Lowest threshold of the piecewise Pareto distribution.
+#' @param default_alpha Numerical. Default alpha for situations where an alpha has to be selected.
+#' @param alpha_max Numerical. Maximum alpha to be used for the matching.
+#' @param severity_distribution Character. Currently only "PiecewisePareto" is supported.
+#' @param ignore_inconsistent_references Logical. If TRUE then inconsistent references are ignored in case of the
+#'        piecewise Pareto distribution and the other references are used to fit the model
+
+#' @return A PPP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
+#' \item \code{FQ} Numerical. Frequency in excess of the lowest threshold of the piecewise Pareto distribution
+#' \item \code{t} Numeric vector. Vector containing the thresholds for the piecewise Pareto distribution
+#' \item \code{alpha} Numeric vector. Vector containing the Pareto alphas of the piecewise Pareto distribution
+#' \item \code{truncation} Numerical. If \code{truncation} is not \code{NULL} and \code{truncation > max(t)}, then the distribution is truncated at \code{truncation}.
+#' \item \code{truncation_type} Character. If \code{truncation_type = "wd"} then the whole distribution is truncated. If \code{truncation_type = "lp"} then a truncated Pareto is used for the last piece.
+#' \item \code{dispersion} Numerical. Dispersion of the Panjer distribution (i.e. variance to mean ratio).
+#' \item \code{Status} Numerical indicator: 0 = success, 1 = some information has been ignored, 2 = no solution found
+#' \item \code{Comment} Character. Information on whether the fit was successful
+#' }
+#'
+#' @examples
+#' covers <- c(1000, 1000, 1000)
+#' att_points <- c(1000, 2000, 5000)
+#' exp_losses <- c(100, 50, 10)
+#' thresholds <- c(4000, 10000)
+#' fqs <- c(0.04, 0.005)
+#' fit <- Fit_References(covers, att_points, exp_losses, thresholds, fqs)
+#' Layer_Mean(fit, covers, att_points)
+#' Excess_Frequency(fit, thresholds)
+#'
+#' @export
+
+
+Fit_References <- function(Covers = NULL, Attachment_Points = NULL, Expected_Layer_Losses = NULL, Thresholds = NULL, Frequencies = NULL, t_1 = min(c(Attachment_Points, Thresholds)), default_alpha = 2, alpha_max = 100, severity_distribution = "PiecewisePareto", ignore_inconsistent_references = FALSE) {
+
+
+
+  Results <- PPP_Model()
+
+  if (!is.positive.finite.vector(Attachment_Points) && !is.null(Attachment_Points)) {
+    warning("Attachment_Points must be positive or NULL.")
+    Results$Comment <- "Attachment_Points must be positive or NULL."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (!is.positive.vector(Covers) && !is.null(Attachment_Points)) {
+    warning("Covers must be positive or NULL.")
+    Results$Comment <- "Covers must be positive or NULL."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (!is.nonnegative.finite.vector(Expected_Layer_Losses) && !is.null(Expected_Layer_Losses)) {
+    warning("Expected_Layer_Losses must be positive or NULL.")
+    Results$Comment <- "Expected_Layer_Losses must be positive or NULL."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (!is.positive.finite.vector(Thresholds) && !is.null(Thresholds)) {
+    warning("Thresholds must be positive or NULL.")
+    Results$Comment <- "Thresholds must be positive or NULL."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (!is.nonnegative.finite.vector(Frequencies) && !is.null(Frequencies)) {
+    warning("Frequencies must be positive or NULL.")
+    Results$Comment <- "Frequencies must be positive or NULL."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (length(Attachment_Points) != length(Covers) || length(Covers) != length(Expected_Layer_Losses)) {
+    warning("Attachment_Points, Covers and Expected_Layer_Losses must have the same length.")
+    Results$Comment <- "Attachment_Points, Covers and Expected_Layer_Losses must have the same length."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (length(Thresholds) != length(Frequencies)) {
+    warning("Thresholds and Frequencies must have the same length.")
+    Results$Comment <- "Thresholds and Frequencies must have the same length."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (length(Attachment_Points) == 0 && length(Thresholds) == 0) {
+    warning("Either number of layers or number of Thresholds must be positive.")
+    Results$Comment <- "Either number of layers or number of Thresholds must be positive."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (!is.positive.finite.number(t_1)) {
+    warning("t_1 must be a positive number.")
+    Results$Comment <- "t_1 must be a positive number."
+    Results$Status <- 2
+    return(Results)
+
+  }
+  if (!is.positive.finite.number(default_alpha) || default_alpha <= 1) {
+    warning("default_alpha must be a positive number > 1.")
+    Results$Comment <- "default_alpha must be a positive number > 1."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (!(severity_distribution %in% c("PiecewisePareto"))) {
+    warning("severity_distribution not valid.")
+    Results$Comment <- "severity_distribution not valid."
+    Results$Status <- 2
+    return(Results)
+  }
+  if (!is.TRUEorFALSE(ignore_inconsistent_references)) {
+    warning("ignore_inconsistent_references must be TRUE or FALSE.")
+    Results$Comment <- "ignore_inconsistent_references must be TRUE or FALSE."
+    Results$Status <- 2
+    return(Results)
+  }
+
+
+  df_layers <- data.frame(limit = Covers, attachment_point = Attachment_Points, exp_loss = Expected_Layer_Losses)
+  df_thresholds <- data.frame(threshold = Thresholds, frequency = Frequencies)
+
+  if (severity_distribution == "PiecewisePareto") {
+    # check if references are overlapping
+    entry <- c(Attachment_Points, Thresholds)
+    exit <- c(Covers + Attachment_Points, Thresholds)
+    entry <- entry[order(exit)]
+    exit <- exit[order(exit)]
+    if (sum(exit[-length(exit)] > entry[-1]) > 0 || length(Thresholds) > length(unique(Thresholds))) {
+      overlapping <- TRUE
+    } else  {
+      overlapping <- FALSE
+    }
+
+
+    if (overlapping && !requireNamespace("lpSolve", quietly = TRUE)) {
+      warning("Reference information is overlapping. Package \"lpSolve\" needed for this function to work overlapping references. Please install it.")
+      Results <- PPP_Model()
+      Results$Comment <- "Reference information is overlapping. Package \"lpSolve\" needed for this function to work overlapping references. Please install it."
+      Results$Status <- 2
+    } else {
+      layer_losses <- calculate_layer_losses(df_layers, df_thresholds, overlapping = overlapping, default_alpha = default_alpha, ignore_inconsistent_references = ignore_inconsistent_references)
+      if (layer_losses$status == 3) {
+        warning("Frequencies / RoLs are not strictly decreasing. No solution found. Install the package \"lpSolve\" to use the option ignore_inconsistent_references = TRUE.")
+        Results <- PPP_Model()
+        Results$Comment <- "Frequencies / RoLs are not strictly decreasing. No solution found. Install the package \"lpSolve\" to use the option ignore_inconsistent_references = TRUE."
+        Results$Status <- 2
+        return(Results)
+      }
+      if (layer_losses$status == 4) {
+        warning("References are inconsistent. Use the option ignore_inconsistent_references = TRUE to ignore the inconsistent references.")
+        Results <- PPP_Model()
+        Results$Comment <- "References are inconsistent. Use the option ignore_inconsistent_references = TRUE to ignore the inconsistent references."
+        Results$Status <- 2
+        return(Results)
+      }
+      if (layer_losses$status == 2) {
+        warning("References are not consistent. Some data has been ignored.")
+        Results <- PPP_Model()
+        Results$Comment <- "References are not consistent. Some data has been ignored."
+        Results$Status <- 2
+      }
+
+      Results <- PiecewisePareto_Match_Layer_Losses((layer_losses$tower)$att, (layer_losses$tower)$exp_loss_new, Frequencies = (layer_losses$tower)$frequency_new, alpha_max = alpha_max)
+    }
+
+  }
+
+  return(Results)
+
+}
 
 

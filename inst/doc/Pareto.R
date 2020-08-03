@@ -95,6 +95,16 @@ covers <- c(diff(attachment_points), Inf)
 Layer_Mean(fit, covers, attachment_points)
 
 ## -----------------------------------------------------------------------------
+  covers <- c(1000, 1000, 1000)
+  att_points <- c(1000, 2000, 5000)
+  exp_losses <- c(100, 50, 10)
+  thresholds <- c(4000, 10000)
+  fqs <- c(0.04, 0.005)
+  fit <- Fit_References(covers, att_points, exp_losses, thresholds, fqs)
+  Layer_Mean(fit, covers, att_points)
+  Excess_Frequency(fit, thresholds)
+
+## -----------------------------------------------------------------------------
 PPPM <- PPP_Model(FQ = 2, t = c(1000, 2000), alpha = c(1, 2), 
                   truncation = 10000, truncation_type = "wd", dispersion = 1.5)
 PPPM
