@@ -12,7 +12,7 @@
 
 <meta name="author" content="Ulrich Riegel" />
 
-<meta name="date" content="2020-08-03" />
+<meta name="date" content="2020-09-11" />
 
 <title>Pareto Package Vignette</title>
 
@@ -315,7 +315,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Pareto Package Vignette</h1>
 <h4 class="author">Ulrich Riegel</h4>
-<h4 class="date">2020-08-03</h4>
+<h4 class="date">2020-09-11</h4>
 
 
 
@@ -356,9 +356,9 @@ F_{t,\alpha}(x):=\begin{cases}
 <div id="simulation" class="section level3">
 <h3>Simulation:</h3>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">rPareto</span>(<span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">2</span>)</span></code></pre></div>
-<pre><code>##  [1] 1349.489 2105.948 1105.215 1155.009 1187.327 2531.308 1004.974 1645.771
-##  [9] 1288.275 3041.176 1105.878 1222.809 1563.706 1078.548 1093.185 1509.730
-## [17] 2361.750 2359.702 1142.531 3708.184</code></pre>
+<pre><code>##  [1]  1245.403  1429.811  2134.593  1053.930  1393.916  1856.907  2262.471
+##  [8]  1087.394  1900.163  1915.308  1158.663  1409.044  1315.225  1086.571
+## [15] 28640.944  1190.798  1836.115  1019.563  1179.296  1320.502</code></pre>
 </div>
 <div id="layer-mean" class="section level3">
 <h3>Layer mean:</h3>
@@ -454,7 +454,7 @@ f_2 = f_1 \cdot \left(\frac{t_1}{t_2}\right)^\alpha
 <p>Pareto distributed losses with a reporting threshold of <span class="math inline">\(t=100\)</span> and <span class="math inline">\(\alpha = 2\)</span>:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true"></a>losses &lt;-<span class="st"> </span><span class="kw">rPareto</span>(<span class="dv">1000</span>, <span class="dt">t =</span> <span class="dv">100</span>, <span class="dt">alpha =</span> <span class="dv">2</span>)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true"></a><span class="kw">Pareto_ML_Estimator_Alpha</span>(losses, <span class="dt">t =</span> <span class="dv">100</span>)</span></code></pre></div>
-<pre><code>## [1] 2.002814</code></pre>
+<pre><code>## [1] 2.05329</code></pre>
 </div>
 <div id="truncation" class="section level3">
 <h3>Truncation</h3>
@@ -495,9 +495,9 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <div id="simulation-1" class="section level3">
 <h3>Simulation</h3>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true"></a><span class="kw">rPiecewisePareto</span>(<span class="dv">20</span>, t, alpha)</span></code></pre></div>
-<pre><code>##  [1] 1197.878 1672.116 1777.695 4065.886 1064.949 1008.571 1803.424 1173.225
-##  [9] 1237.860 1091.409 1750.406 1589.903 1464.313 1878.674 1618.242 2001.242
-## [17] 1211.561 3462.330 1558.871 3310.033</code></pre>
+<pre><code>##  [1] 1031.446 1773.434 1453.525 1663.846 4832.841 1129.623 1418.571 1310.996
+##  [9] 1450.554 4002.177 1054.120 1006.987 1181.157 2356.843 2746.411 1309.444
+## [17] 1944.367 1185.440 1321.415 1368.198</code></pre>
 </div>
 <div id="layer-mean-1" class="section level3">
 <h3>Layer mean</h3>
@@ -516,7 +516,7 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <p>Piecewise Pareto distributed losses with <span class="math inline">\(\mathbf{t}:=(100,\,200,\, 300)\)</span> and <span class="math inline">\(\boldsymbol\alpha:=(1,\, 2,\, 3)\)</span>:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true"></a>losses &lt;-<span class="st"> </span><span class="kw">rPiecewisePareto</span>(<span class="dv">10000</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true"></a><span class="kw">PiecewisePareto_ML_Estimator_Alpha</span>(losses, <span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>))</span></code></pre></div>
-<pre><code>## [1] 0.9697247 2.0049371 3.0616522</code></pre>
+<pre><code>## [1] 1.001915 1.953218 3.124186</code></pre>
 </div>
 <div id="truncation-1" class="section level3">
 <h3>Truncation</h3>
@@ -688,17 +688,17 @@ F_{\mathbf{t},\boldsymbol\alpha}(x):=\begin{cases}
 <div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true"></a>PPPM &lt;-<span class="st"> </span><span class="kw">PPP_Model</span>(<span class="dt">FQ =</span> <span class="dv">2</span>, <span class="dt">t =</span> <span class="kw">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>), <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), </span>
 <span id="cb69-2"><a href="#cb69-2" aria-hidden="true"></a>                  <span class="dt">truncation =</span> <span class="dv">10000</span>, <span class="dt">truncation_type =</span> <span class="st">&quot;wd&quot;</span>, <span class="dt">dispersion =</span> <span class="fl">1.5</span>)</span>
 <span id="cb69-3"><a href="#cb69-3" aria-hidden="true"></a><span class="kw">Simulate_Losses</span>(PPPM, <span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##           [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]
-##  [1,] 2648.202 1378.807 2669.970 1366.031 1353.972      NaN      NaN      NaN
-##  [2,] 2834.045 2232.647 2223.364 2274.253      NaN      NaN      NaN      NaN
-##  [3,] 1403.157 3679.275 1242.188      NaN      NaN      NaN      NaN      NaN
-##  [4,] 2268.210 2514.146      NaN      NaN      NaN      NaN      NaN      NaN
-##  [5,] 1347.229 1191.367      NaN      NaN      NaN      NaN      NaN      NaN
-##  [6,]      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-##  [7,] 1348.446      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-##  [8,]      NaN      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-##  [9,] 1799.840      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-## [10,] 1658.470 3325.339 2748.205 2267.742 1680.273 1300.711 1092.153 3422.605</code></pre>
+<pre><code>##           [,1]     [,2]     [,3]     [,4]
+##  [1,]      NaN      NaN      NaN      NaN
+##  [2,] 1500.797      NaN      NaN      NaN
+##  [3,]      NaN      NaN      NaN      NaN
+##  [4,]      NaN      NaN      NaN      NaN
+##  [5,] 4463.640 2920.168      NaN      NaN
+##  [6,] 1642.409 3282.566      NaN      NaN
+##  [7,] 1226.696 5038.133      NaN      NaN
+##  [8,] 1289.661 2096.238      NaN      NaN
+##  [9,] 3448.268 1373.413      NaN      NaN
+## [10,] 1075.308 1805.253 1130.548 1371.263</code></pre>
 <p>The function <code>Simulate_Losses</code> returns a matrix where each row contains the losses from one simulation.</p>
 <p>Note that for a given expected frequency <code>FQ</code> not every dispersion <code>dispersion &lt; 1</code> is possible for the binomial distribution. In this case a binomial distribution with the smallest dispersion larger than or equal to <code>dispersion</code> is used for the simulation.</p>
 </div>
@@ -733,9 +733,9 @@ F_{t,\alpha_\text{ini}, \alpha_\text{tail}}(x):=\begin{cases}
 <div id="simulation-2" class="section level3">
 <h3>Simulation:</h3>
 <div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true"></a><span class="kw">rGenPareto</span>(<span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span></code></pre></div>
-<pre><code>##  [1] 1462.852 1815.494 1234.105 4700.963 1244.487 1710.451 2314.692 3072.055
-##  [9] 5859.177 1487.312 3118.736 1228.939 3648.317 2458.839 5039.574 2807.651
-## [17] 2056.472 1854.418 5416.939 1164.348</code></pre>
+<pre><code>##  [1] 4828.809 1406.531 1093.536 1579.234 2384.107 1790.853 3702.058 2897.644
+##  [9] 3481.567 1053.733 1774.447 4634.423 5649.051 4756.961 1282.859 3260.347
+## [17] 8186.255 1165.029 1225.942 2070.784</code></pre>
 </div>
 <div id="layer-mean-2" class="section level3">
 <h3>Layer mean:</h3>
@@ -788,17 +788,17 @@ F_{t,\alpha_\text{ini}, \alpha_\text{tail}}(x):=\begin{cases}
 <span id="cb93-2"><a href="#cb93-2" aria-hidden="true"></a><span class="kw">Excess_Frequency</span>(PGPM, thresholds)</span></code></pre></div>
 <pre><code>## [1] 2.0000000 2.0000000 0.8509022 0.1614435 0.0000000 0.0000000</code></pre>
 <div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true"></a><span class="kw">Simulate_Losses</span>(PGPM, <span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##           [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]
-##  [1,] 1360.239 1164.450 2292.086 2119.340      NaN      NaN      NaN
-##  [2,]      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-##  [3,] 2413.990 8423.670      NaN      NaN      NaN      NaN      NaN
-##  [4,]      NaN      NaN      NaN      NaN      NaN      NaN      NaN
-##  [5,] 1393.073      NaN      NaN      NaN      NaN      NaN      NaN
-##  [6,] 3597.480      NaN      NaN      NaN      NaN      NaN      NaN
-##  [7,] 2483.004 1462.953 1331.478 2246.624      NaN      NaN      NaN
-##  [8,] 1167.060      NaN      NaN      NaN      NaN      NaN      NaN
-##  [9,] 1513.196 4588.113 4171.892      NaN      NaN      NaN      NaN
-## [10,] 4490.569 1083.351 1131.133 3487.975 2376.526 3608.534 2016.687</code></pre>
+<pre><code>##           [,1]     [,2]     [,3]     [,4]
+##  [1,] 1038.730      NaN      NaN      NaN
+##  [2,] 2088.776 3073.461 2211.025      NaN
+##  [3,]      NaN      NaN      NaN      NaN
+##  [4,] 4461.765      NaN      NaN      NaN
+##  [5,] 1317.969 4519.535      NaN      NaN
+##  [6,] 3288.233 1071.195      NaN      NaN
+##  [7,] 2284.688 2436.009      NaN      NaN
+##  [8,]      NaN      NaN      NaN      NaN
+##  [9,] 1111.868      NaN      NaN      NaN
+## [10,] 1296.986 1291.490 2984.140 2346.159</code></pre>
 </div>
 </div>
 <div id="references" class="section level2">
