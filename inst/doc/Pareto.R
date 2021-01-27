@@ -105,6 +105,12 @@ Layer_Mean(fit, covers, attachment_points)
   Excess_Frequency(fit, thresholds)
 
 ## -----------------------------------------------------------------------------
+return_periods <- c(1, 5, 10, 20, 50, 100)
+amounts <- c(1000, 4000, 7000, 10000, 13000, 14000)
+fit <- Fit_PML_Curve(return_periods, amounts)
+1 / Excess_Frequency(fit, amounts)
+
+## -----------------------------------------------------------------------------
 PPPM <- PPP_Model(FQ = 2, t = c(1000, 2000), alpha = c(1, 2), 
                   truncation = 10000, truncation_type = "wd", dispersion = 1.5)
 PPPM
