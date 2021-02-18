@@ -50,8 +50,35 @@ t_2 <- 4000
 Pareto_Find_Alpha_btw_FQs(t_1, f_1, t_2, f_2)
 
 ## -----------------------------------------------------------------------------
-losses <- rPareto(1000, t = 100, alpha = 2)
-Pareto_ML_Estimator_Alpha(losses, t = 100)
+losses <- rPareto(1000, t = 1000, alpha = 2)
+Pareto_ML_Estimator_Alpha(losses, t = 1000)
+
+## -----------------------------------------------------------------------------
+losses_1 <- rPareto(5000, t = 1000, alpha = 2)
+losses_2 <- rPareto(5000, t = 1000, alpha = 2)
+reported <- losses_2 > 3000
+losses_2 <- losses_2[reported]
+losses <- c(losses_1, losses_2)
+Pareto_ML_Estimator_Alpha(losses, t = 1000)
+
+## -----------------------------------------------------------------------------
+reporting_thresholds_1 <- rep(1000, length(losses_1))
+reporting_thresholds_2 <- rep(3000, length(losses_2))
+reporting_thresholds <- c(reporting_thresholds_1, reporting_thresholds_2)
+Pareto_ML_Estimator_Alpha(losses, t = 1000, reporting_thresholds = reporting_thresholds)
+
+## -----------------------------------------------------------------------------
+limits <- sample(c(5000, 10000), length(losses), replace = T)
+censored <- losses > limits
+losses[censored] <- limits[censored]
+reported <- losses > reporting_thresholds
+losses <- losses[reported]
+reporting_thresholds <- reporting_thresholds[reported]
+Pareto_ML_Estimator_Alpha(losses, t = 1000, reporting_thresholds = reporting_thresholds)
+
+## -----------------------------------------------------------------------------
+Pareto_ML_Estimator_Alpha(losses, t = 1000, reporting_thresholds = reporting_thresholds, 
+                          is.censored = censored)
 
 ## -----------------------------------------------------------------------------
 x <- c(1:10) * 1000
@@ -74,8 +101,35 @@ PiecewisePareto_Layer_Mean(4000, 1000, t, alpha)
 PiecewisePareto_Layer_Var(4000, 1000, t, alpha)
 
 ## -----------------------------------------------------------------------------
-losses <- rPiecewisePareto(10000, t = c(100,200,300), alpha = c(1,2,3))
-PiecewisePareto_ML_Estimator_Alpha(losses, c(100,200,300))
+losses <- rPiecewisePareto(10000, t = c(1000, 2000, 3000), alpha = c(1, 2, 3))
+PiecewisePareto_ML_Estimator_Alpha(losses, c(1000, 2000, 3000))
+
+## -----------------------------------------------------------------------------
+losses_1 <- rPiecewisePareto(5000, t = c(1000, 2000, 3000), alpha = c(1, 2, 3))
+losses_2 <- rPiecewisePareto(5000, t = c(1000, 2000, 3000), alpha = c(1, 2, 3))
+reported <- losses_2 > 3000
+losses_2 <- losses_2[reported]
+losses <- c(losses_1, losses_2)
+PiecewisePareto_ML_Estimator_Alpha(losses, c(1000, 2000, 3000))
+
+reporting_thresholds_1 <- rep(1000, length(losses_1))
+reporting_thresholds_2 <- rep(3000, length(losses_2))
+reporting_thresholds <- c(reporting_thresholds_1, reporting_thresholds_2)
+PiecewisePareto_ML_Estimator_Alpha(losses, c(1000, 2000, 3000), 
+                                   reporting_thresholds = reporting_thresholds)
+
+limits <- sample(c(2500, 5000, 10000), length(losses), replace = T)
+censored <- losses > limits
+losses[censored] <- limits[censored]
+reported <- losses > reporting_thresholds
+losses <- losses[reported]
+reporting_thresholds <- reporting_thresholds[reported]
+censored <- censored[reported]
+PiecewisePareto_ML_Estimator_Alpha(losses, c(1000, 2000, 3000), 
+                                   reporting_thresholds = reporting_thresholds)
+PiecewisePareto_ML_Estimator_Alpha(losses, c(1000, 2000, 3000), 
+                                   reporting_thresholds = reporting_thresholds, 
+                                   is.censored = censored)
 
 ## -----------------------------------------------------------------------------
 attachment_points <- c(1000, 1500, 2000, 2500, 3000)
@@ -151,6 +205,37 @@ GenPareto_Layer_Mean(4000, 1000, t = 500, alpha_ini = 1, alpha_tail = 2)
 
 ## -----------------------------------------------------------------------------
 GenPareto_Layer_Var(4000, 1000, t = 500, alpha_ini = 1, alpha_tail = 2)
+
+## -----------------------------------------------------------------------------
+losses <- rGenPareto(10000, t = 1000, alpha_ini = 1, alpha_tail = 2)
+GenPareto_ML_Estimator_Alpha(losses, 1000)
+
+## -----------------------------------------------------------------------------
+losses_1 <- rGenPareto(5000, t = 1000, alpha_ini = 1, alpha_tail = 2)
+losses_2 <- rGenPareto(5000, t = 1000, alpha_ini = 1, alpha_tail = 2)
+reported <- losses_2 > 3000
+losses_2 <- losses_2[reported]
+losses <- c(losses_1, losses_2)
+GenPareto_ML_Estimator_Alpha(losses, 1000)
+
+reporting_thresholds_1 <- rep(1000, length(losses_1))
+reporting_thresholds_2 <- rep(3000, length(losses_2))
+reporting_thresholds <- c(reporting_thresholds_1, reporting_thresholds_2)
+GenPareto_ML_Estimator_Alpha(losses, 1000, 
+                             reporting_thresholds = reporting_thresholds)
+
+limits <- sample(c(2500, 5000, 10000), length(losses), replace = T)
+censored <- losses > limits
+losses[censored] <- limits[censored]
+reported <- losses > reporting_thresholds
+losses <- losses[reported]
+reporting_thresholds <- reporting_thresholds[reported]
+censored <- censored[reported]
+GenPareto_ML_Estimator_Alpha(losses, 1000, 
+                             reporting_thresholds = reporting_thresholds)
+GenPareto_ML_Estimator_Alpha(losses, 1000, 
+                             reporting_thresholds = reporting_thresholds, 
+                             is.censored = censored)
 
 ## -----------------------------------------------------------------------------
 PGPM <- PGP_Model(FQ = 2, t = 1000, alpha_ini = 1, alpha_tail = 2, 

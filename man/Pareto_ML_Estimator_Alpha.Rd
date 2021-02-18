@@ -2,41 +2,42 @@
 % Please edit documentation in R/Functions.R
 \name{Pareto_ML_Estimator_Alpha}
 \alias{Pareto_ML_Estimator_Alpha}
-\title{Maximum Likelihood Estimation of the Pareto Alpha}
+\title{Maximum Likelihood Estimation of the Alpha of a Pareto distribution}
 \usage{
 Pareto_ML_Estimator_Alpha(
   losses,
   t,
   truncation = NULL,
+  reporting_thresholds = NULL,
+  is.censored = NULL,
   weights = NULL,
-  tol = 1e-07,
-  max_iterations = 1000,
-  alpha_min = 0,
-  alpha_max = Inf
+  alpha_min = 0.001,
+  alpha_max = 10
 )
 }
 \arguments{
 \item{losses}{Numeric vector. Losses that are used for the ML estimation.}
 
-\item{t}{Numeric or numeric vector. Threshold of the Pareto distribution. Alternatively, \code{t} can be a vector of same length as \code{losses}. In this case \code{t[i]} is the reporting threshold of \code{losses[i]}.}
+\item{t}{Numeric. Threshold of the Pareto distribution.}
 
-\item{truncation}{Numeric. If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the Pareto distribution is truncated at \code{truncation}.}
+\item{truncation}{Numeric. If \code{truncation} is not \code{NULL}, then the Pareto distribution is truncated at \code{truncation}.}
+
+\item{reporting_thresholds}{Numeric vector. Allows to enter loss specific reporting thresholds. If \code{NULL} then all reporting thresholds are assumed to be less than or equal to \code{t}.}
+
+\item{is.censored}{Logical vector. \code{TRUE} indicates that a loss has been censored by the policy limit. The assumption is that the uncensored losses are Pareto distributed with the alpha we are looking for. \code{is.censored = NULL} means that no losses are censored.}
 
 \item{weights}{Numeric vector. Weights for the losses. For instance \code{weights[i] = 2} and \code{weights[j] = 1} for \code{j != i} has the same effect as adding another loss of size \code{loss[i]}.}
 
-\item{tol}{Numeric. Desired accuracy  (only relevant in the truncated case).}
+\item{alpha_min}{Numeric. Lower bound for alpha (only used in truncated case).}
 
-\item{max_iterations}{Numeric. Maximum number of iteration in the case \code{truncation < Inf}  (only relevant in the truncated case).}
-
-\item{alpha_min}{Numeric. Deprecated.}
-
-\item{alpha_max}{Numeric. Deprecated.}
+\item{alpha_max}{Numeric. Upper bound for alpha (only used in truncated case).}
 }
 \value{
 Maximum likelihood estimator for the parameter \code{alpha} of a Pareto distribution with threshold \code{t} given the observations \code{losses}
 }
 \description{
-Calculates the maximum likelihood estimator of the parameter alpha of a Pareto distribution
+Calculates the maximum likelihood estimator for the parameter alpha of a Pareto distribution
+with a known threshold and (if applicable) a known truncation
 }
 \examples{
 losses <- rPareto(100, 1000, 2)
@@ -45,12 +46,15 @@ losses <- rPareto(100, 1000, 2, truncation = 2000)
 Pareto_ML_Estimator_Alpha(losses, 1000)
 Pareto_ML_Estimator_Alpha(losses, 1000, truncation = 2000)
 
-t <- rPareto(10000, 100, 2)
+t <- 100
 alpha <- 2
 losses <- rPareto(10000, t, alpha)
+reporting_thresholds <- rPareto(10000, t, 5)
+index <- losses > reporting_thresholds
+losses <- losses[index]
+reporting_thresholds <- reporting_thresholds[index]
 Pareto_ML_Estimator_Alpha(losses, t)
-losses <- rPareto(10000, t, alpha, truncation = 2 * max(t))
-Pareto_ML_Estimator_Alpha(losses, t, truncation = 2 * max(t))
+Pareto_ML_Estimator_Alpha(losses, t, reporting_thresholds = reporting_thresholds)
 
 losses <- rPareto(10, 1000, 2)
 w <- rep(1, 10)

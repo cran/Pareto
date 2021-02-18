@@ -1,3 +1,15 @@
+# Pareto 2.4.0
+
+* Improved functionality for maximum likelihood estimation
+    * Possibility to use reporting thresholds
+    * Allow to consider censored data
+    * Improved performance
+* Added distributions in function Local_Pareto_Alpha:
+    * Pareto distribution
+    * Generalized Pareto distribution
+    * Piecewise Pareto distribution
+* Improved handling of inputs of length zero in vectorized functions
+
 # Pareto 2.3.0
 
 * Vectorization of the following functions:
