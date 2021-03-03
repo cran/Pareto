@@ -2,7 +2,7 @@
 % Please edit documentation in R/Functions.R
 \name{Fit_References}
 \alias{Fit_References}
-\title{Fit a Tailor-Made Collective Model that Satisfies a Wishlist of Conditions}
+\title{Fit a Collective Model to a Wishlist of References}
 \usage{
 Fit_References(
   Covers = NULL,
@@ -10,7 +10,7 @@ Fit_References(
   Expected_Layer_Losses = NULL,
   Thresholds = NULL,
   Frequencies = NULL,
-  t_1 = min(c(Attachment_Points, Thresholds)),
+  model_threshold = min(c(Attachment_Points, Thresholds)),
   default_alpha = 2,
   dispersion = 1,
   alpha_max = 100,
@@ -29,7 +29,7 @@ Fit_References(
 
 \item{Frequencies}{Numeric vector. Expected frequencies excess the \code{Thresholds} from the wishlist.}
 
-\item{t_1}{Numerical. Lowest threshold of the piecewise Pareto distribution.}
+\item{model_threshold}{Numerical. Lowest threshold of the fitted piecewise Pareto distribution.}
 
 \item{default_alpha}{Numerical. Default alpha for situations where an alpha has to be selected.}
 
@@ -37,13 +37,13 @@ Fit_References(
 
 \item{alpha_max}{Numerical. Maximum alpha to be used for the matching.}
 
-\item{severity_distribution}{Character. Currently only "PiecewisePareto" is supported.}
+\item{severity_distribution}{Character. Implemented distributions: "PiecewisePareto" (default), "Pareto" and "GenPareto".}
 
 \item{ignore_inconsistent_references}{Logical. If TRUE then inconsistent references are ignored in case of the
 piecewise Pareto distribution and the other references are used to fit the model}
 }
 \value{
-A PPP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
+For severity_distribution = "PiecewisePareto" or "Pareto": A PPP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
 \item \code{FQ} Numerical. Frequency in excess of the lowest threshold of the piecewise Pareto distribution
 \item \code{t} Numeric vector. Vector containing the thresholds for the piecewise Pareto distribution
 \item \code{alpha} Numeric vector. Vector containing the Pareto alphas of the piecewise Pareto distribution
@@ -53,9 +53,25 @@ A PPP_Model object that contains the information about a collective model with a
 \item \code{Status} Numerical indicator: 0 = success, 1 = some information has been ignored, 2 = no solution found
 \item \code{Comment} Character. Information on whether the fit was successful
 }
+For severity_distribution = "GenPareto": A PGP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
+\item \code{FQ} Expected claim count of the collective model.
+\item \code{t} Numeric. Threshold of the Pareto distribution.
+\item \code{alpha_ini} Numeric. Initial Pareto alpha (at \code{t}).
+\item \code{alpha_tail} Numeric. Tail Pareto alpha.
+\item \code{truncation} If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the Pareto distribution is truncated at \code{truncation}.
+\item \code{dispersion} Numerical. Dispersion of the Panjer distribution (i.e. variance to mean ratio).
+\item \code{Status} Numerical indicator: 0 = success, 1 = some information has been ignored, 2 = no solution found
+\item \code{Comment} Character. Information on whether the fit was successful
+}
 }
 \description{
-Fits a PPP_Model that fulfils a wishlist of conditions (expected layer losses and excess frequencies)
+The function fits a collective model to a wishlist of references (expected layer losses and excess frequencies).
+ The function allows to specify the family of the severity distribution that is used. Depending on this distribution family the
+ function works slightly differently: \itemize{
+ \item For the severity distribution \code{PiecewisePareto} the function returns a \code{PPP_Model} that satisfies all the references
+ \item For the severity distribution \code{Pareto} the function returns a \code{PPP_Model} that minimizes the squared relative deviations from the references
+ \item For the severity distribution \code{GenPareto} the function returns a \code{PGP_Model} that minimizes the squared relative deviations from the references
+}
 }
 \examples{
 covers <- c(1000, 1000, 1000)
@@ -66,5 +82,12 @@ fqs <- c(0.04, 0.005)
 fit <- Fit_References(covers, att_points, exp_losses, thresholds, fqs)
 Layer_Mean(fit, covers, att_points)
 Excess_Frequency(fit, thresholds)
+fit <- Fit_References(covers, att_points, exp_losses, thresholds, fqs,
+                      severity_distribution = "Pareto")
+Layer_Mean(fit, covers, att_points)
+Excess_Frequency(fit, thresholds)
+fit <- Fit_References(covers, att_points, exp_losses,
+                      severity_distribution = "GenPareto")
+Layer_Mean(fit, covers, att_points)
 
 }

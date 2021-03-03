@@ -4312,29 +4312,45 @@ rPanjer <- function(n, mean, dispersion) {
 
 
 
-#' Fit a Tailor-Made Collective Model that Satisfies a Wishlist of Conditions
+#' Fit a Collective Model to a Wishlist of References
 #'
-#' @description Fits a PPP_Model that fulfils a wishlist of conditions (expected layer losses and excess frequencies)
+#' @description The function fits a collective model to a wishlist of references (expected layer losses and excess frequencies).
+#'  The function allows to specify the family of the severity distribution that is used. Depending on this distribution family the
+#'  function works slightly differently: \itemize{
+#'  \item For the severity distribution \code{PiecewisePareto} the function returns a \code{PPP_Model} that satisfies all the references
+#'  \item For the severity distribution \code{Pareto} the function returns a \code{PPP_Model} that minimizes the squared relative deviations from the references
+#'  \item For the severity distribution \code{GenPareto} the function returns a \code{PGP_Model} that minimizes the squared relative deviations from the references
+#' }
 #'
 #' @param Covers Numeric vector. Vector containing the covers of the layers from the wishlist.
 #' @param Attachment_Points Numeric vector. Vector containing the attachment points of the layers from the wishlist.
 #' @param Expected_Layer_Losses Numeric vector. Vector containing the expected losses of the layers from the wishlist.
 #' @param Thresholds Numeric vector. Contains the thresholds from the whishlist for which excess frequencies are given.
 #' @param Frequencies Numeric vector. Expected frequencies excess the \code{Thresholds} from the wishlist.
-#' @param t_1 Numerical. Lowest threshold of the piecewise Pareto distribution.
+#' @param model_threshold Numerical. Lowest threshold of the fitted piecewise Pareto distribution.
 #' @param default_alpha Numerical. Default alpha for situations where an alpha has to be selected.
 #' @param dispersion Numerical. Dispersion of the claim count distribution in the resulting PPP_Model.
 #' @param alpha_max Numerical. Maximum alpha to be used for the matching.
-#' @param severity_distribution Character. Currently only "PiecewisePareto" is supported.
+#' @param severity_distribution Character. Implemented distributions: "PiecewisePareto" (default), "Pareto" and "GenPareto".
 #' @param ignore_inconsistent_references Logical. If TRUE then inconsistent references are ignored in case of the
 #'        piecewise Pareto distribution and the other references are used to fit the model
 
-#' @return A PPP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
+#' @return For severity_distribution = "PiecewisePareto" or "Pareto": A PPP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
 #' \item \code{FQ} Numerical. Frequency in excess of the lowest threshold of the piecewise Pareto distribution
 #' \item \code{t} Numeric vector. Vector containing the thresholds for the piecewise Pareto distribution
 #' \item \code{alpha} Numeric vector. Vector containing the Pareto alphas of the piecewise Pareto distribution
 #' \item \code{truncation} Numerical. If \code{truncation} is not \code{NULL} and \code{truncation > max(t)}, then the distribution is truncated at \code{truncation}.
 #' \item \code{truncation_type} Character. If \code{truncation_type = "wd"} then the whole distribution is truncated. If \code{truncation_type = "lp"} then a truncated Pareto is used for the last piece.
+#' \item \code{dispersion} Numerical. Dispersion of the Panjer distribution (i.e. variance to mean ratio).
+#' \item \code{Status} Numerical indicator: 0 = success, 1 = some information has been ignored, 2 = no solution found
+#' \item \code{Comment} Character. Information on whether the fit was successful
+#' }
+#' For severity_distribution = "GenPareto": A PGP_Model object that contains the information about a collective model with a Panjer distributed claim count and a Piecewise Pareto distributed severity. The object contains the following elements: \itemize{
+#' \item \code{FQ} Expected claim count of the collective model.
+#' \item \code{t} Numeric. Threshold of the Pareto distribution.
+#' \item \code{alpha_ini} Numeric. Initial Pareto alpha (at \code{t}).
+#' \item \code{alpha_tail} Numeric. Tail Pareto alpha.
+#' \item \code{truncation} If \code{truncation} is not \code{NULL} and \code{truncation > t}, then the Pareto distribution is truncated at \code{truncation}.
 #' \item \code{dispersion} Numerical. Dispersion of the Panjer distribution (i.e. variance to mean ratio).
 #' \item \code{Status} Numerical indicator: 0 = success, 1 = some information has been ignored, 2 = no solution found
 #' \item \code{Comment} Character. Information on whether the fit was successful
@@ -4349,15 +4365,33 @@ rPanjer <- function(n, mean, dispersion) {
 #' fit <- Fit_References(covers, att_points, exp_losses, thresholds, fqs)
 #' Layer_Mean(fit, covers, att_points)
 #' Excess_Frequency(fit, thresholds)
+#' fit <- Fit_References(covers, att_points, exp_losses, thresholds, fqs,
+#'                       severity_distribution = "Pareto")
+#' Layer_Mean(fit, covers, att_points)
+#' Excess_Frequency(fit, thresholds)
+#' fit <- Fit_References(covers, att_points, exp_losses,
+#'                       severity_distribution = "GenPareto")
+#' Layer_Mean(fit, covers, att_points)
 #'
 #' @export
 
 
-Fit_References <- function(Covers = NULL, Attachment_Points = NULL, Expected_Layer_Losses = NULL, Thresholds = NULL, Frequencies = NULL, t_1 = min(c(Attachment_Points, Thresholds)), default_alpha = 2, dispersion = 1, alpha_max = 100, severity_distribution = "PiecewisePareto", ignore_inconsistent_references = FALSE) {
+Fit_References <- function(Covers = NULL, Attachment_Points = NULL, Expected_Layer_Losses = NULL, Thresholds = NULL, Frequencies = NULL, model_threshold = min(c(Attachment_Points, Thresholds)), default_alpha = 2, dispersion = 1, alpha_max = 100, severity_distribution = "PiecewisePareto", ignore_inconsistent_references = FALSE) {
 
 
+  if (!is.string(severity_distribution) || !(severity_distribution %in% c("PiecewisePareto", "Pareto", "GenPareto"))) {
+    Results <- PPP_Model()
+    warning("severity_distribution not valid.")
+    Results$Comment <- "severity_distribution not valid."
+    Results$Status <- 2
+    return(Results)
+  } else if (severity_distribution == "PiecewisePareto" || severity_distribution == "Pareto") {
+    Results <- PPP_Model()
+  } else {
+    Results <- PGP_Model()
+  }
 
-  Results <- PPP_Model()
+
 
   if (!is.positive.finite.number(dispersion)) {
     warning("Dispersion must be a positive number.")
@@ -4417,22 +4451,21 @@ Fit_References <- function(Covers = NULL, Attachment_Points = NULL, Expected_Lay
     Results$Status <- 2
     return(Results)
   }
-  if (!is.positive.finite.number(t_1)) {
-    warning("t_1 must be a positive number.")
-    Results$Comment <- "t_1 must be a positive number."
+  if (!is.positive.finite.number(model_threshold)) {
+    warning("model_threshold must be a positive number.")
+    Results$Comment <- "model_threshold must be a positive number."
     Results$Status <- 2
     return(Results)
-
+  }
+  if (model_threshold > min(c(Attachment_Points, Thresholds))) {
+    warning("model_threshold must be a less than or equal to the lowest Threshold / Attachment Point.")
+    Results$Comment <- "model_threshold must be a less than or equal to the lowest Threshold / Attachment Point."
+    Results$Status <- 2
+    return(Results)
   }
   if (!is.positive.finite.number(default_alpha) || default_alpha <= 1) {
     warning("default_alpha must be a positive number > 1.")
     Results$Comment <- "default_alpha must be a positive number > 1."
-    Results$Status <- 2
-    return(Results)
-  }
-  if (!(severity_distribution %in% c("PiecewisePareto"))) {
-    warning("severity_distribution not valid.")
-    Results$Comment <- "severity_distribution not valid."
     Results$Status <- 2
     return(Results)
   }
@@ -4446,6 +4479,50 @@ Fit_References <- function(Covers = NULL, Attachment_Points = NULL, Expected_Lay
 
   df_layers <- data.frame(limit = Covers, attachment_point = Attachment_Points, exp_loss = Expected_Layer_Losses)
   df_thresholds <- data.frame(threshold = Thresholds, frequency = Frequencies)
+
+  # handle case of max 2 references
+
+  alpha_temp <- NA
+  FQ_temp <- NA
+
+  if (nrow(df_layers) == 1 && nrow(df_thresholds) == 0) {
+    alpha_temp <- default_alpha
+    try(FQ_temp <- df_layers$exp_loss / Pareto_Layer_Mean(df_layers$limit, df_layers$attachment_point, alpha_temp, t = model_threshold), silent = T)
+  } else if (nrow(df_layers) == 0 && nrow(df_thresholds) == 1) {
+    alpha_temp <- default_alpha
+    try(FQ_temp <- df_thresholds$frequency / (1 - pPareto(df_thresholds$threshold, model_threshold, alpha_temp)), silent = T)
+  } else if (nrow(df_layers) == 1 && nrow(df_thresholds) == 1) {
+    try(alpha_temp <- Pareto_Find_Alpha_btw_FQ_Layer(df_thresholds$threshold, df_thresholds$frequency, df_layers$limit, df_layers$attachment_point, df_layers$exp_loss), silent = T)
+    if (!is.na(alpha_temp)) {
+      try(FQ_temp <- df_thresholds$frequency / (1 - pPareto(df_thresholds$threshold, model_threshold, alpha_temp)), silent = T)
+    }
+  } else if (nrow(df_layers) == 2 && nrow(df_thresholds) == 0) {
+    try(alpha_temp <- Pareto_Find_Alpha_btw_Layers(df_layers$limit[1], df_layers$attachment_point[1], df_layers$exp_loss[1], df_layers$limit[2], df_layers$attachment_point[2], df_layers$exp_loss[2]), silent = T)
+    if (!is.na(alpha_temp)) {
+      try(FQ_temp <- df_layers$exp_loss[1] / Pareto_Layer_Mean(df_layers$limit[1], df_layers$attachment_point[1], alpha_temp, t = model_threshold), silent = T)
+    }
+  } else if (nrow(df_layers) == 0 && nrow(df_thresholds) == 2) {
+    try(alpha_temp <- Pareto_Find_Alpha_btw_FQs(df_thresholds$threshold[1], df_thresholds$frequency[1], df_thresholds$threshold[2], df_thresholds$frequency[2]), silent = T)
+    if (!is.na(alpha_temp)) {
+      try(FQ_temp <- df_thresholds$frequency[1] / (1 - pPareto(df_thresholds$threshold[1], model_threshold, alpha_temp)), silent = T)
+    }
+  }
+
+  if (!is.na(alpha_temp) && !is.na(FQ_temp)) {
+    Results$t <- model_threshold
+    if (severity_distribution == "GenPareto") {
+      Results$alpha_ini <- alpha_temp
+      Results$alpha_tail <- alpha_temp
+    } else {
+      Results$alpha <- alpha_temp
+    }
+    Results$FQ <- FQ_temp
+    Results$Status <- 0
+    Results$Comment <- "OK"
+    return(Results)
+  }
+
+
 
   if (severity_distribution == "PiecewisePareto") {
     # check if references are overlapping
@@ -4489,12 +4566,148 @@ Fit_References <- function(Covers = NULL, Attachment_Points = NULL, Expected_Lay
       }
 
       Results <- PiecewisePareto_Match_Layer_Losses((layer_losses$tower)$att, (layer_losses$tower)$exp_loss_new, Frequencies = (layer_losses$tower)$frequency_new, alpha_max = alpha_max)
+      if (Results$t[1] > model_threshold) {
+        Results$FQ <- Results$FQ * (Results$t[1] / model_threshold)^Results$alpha[1]
+        Results$t[1] <- model_threshold
+      } else if (Results$t[1] < model_threshold) {
+        warning("model_threshold is ignored.")
+      }
     }
 
+  } else if (severity_distribution == "Pareto") {
+    target <- function(FQ, alpha) {
+      result <- 0
+      if (nrow(df_layers) > 0) {
+        result <- result + sum((FQ * Pareto_Layer_Mean(df_layers$limit, df_layers$attachment_point, alpha, t = model_threshold) - df_layers$exp_loss)^2 / (df_layers$exp_loss)^2)
+      }
+      if (nrow(df_thresholds) > 0) {
+        result <- result + sum((FQ * (1 - pPareto(df_thresholds$threshold, alpha, t = model_threshold)) - df_thresholds$frequency)^2 / (df_thresholds$frequency)^2)
+      }
+      return(result)
+    }
+
+    if (nrow(df_layers) > 0 && is.infinite(max(df_layers$limit))) {
+      lb <- 1.01
+    } else {
+      lb <- 0.01
+    }
+    target_FQ <- function(FQ) {
+      result <- NULL
+      try(result <- stats::optim(1.5, function(x) target(FQ, x), lower = lb, upper = alpha_max, method = "Brent"), silent = T)
+      if (is.null(result) || result$convergence > 0) {
+        return(Inf)
+      }
+      return(result$value)
+    }
+    result <- NULL
+    f <- Vectorize(target_FQ)
+    FQ_discrete <- exp(log(1e12) * (0:100) / 100) * 1e-6 # range from 1e-6 to 1e6
+    f_discrete <- f(FQ_discrete)
+    FQ_min <- FQ_discrete[max(1, order(f_discrete)[1] - 1)]
+    FQ_max <- FQ_discrete[min(length(FQ_discrete), order(f_discrete)[1] + 1)]
+    try(result <- stats::optim((FQ_min + FQ_max) / 2, target_FQ, lower = FQ_min, upper = FQ_max, method = "Brent"), silent = T)
+    if (is.null(result) || result$convergence > 0) {
+      warning("No solution found.")
+      Results$Comment <- "No solution found."
+      Results$Status <- 2
+      return(Results)
+    }
+    Results$FQ <- result$par
+    Results$t <- model_threshold
+    result <- NULL
+    try(result <- stats::optim(1.5, function(x) target(Results$FQ, x), lower = lb, upper = alpha_max, method = "Brent"), silent = T)
+
+    if (is.null(result) || result$convergence > 0) {
+      warning("No solution found.")
+      Results$Comment <- "No solution found."
+      Results$Status <- 2
+      return(Results)
+    }
+    Results$alpha <- result$par
+    if (Results$FQ == 1e6 || Results$FQ == 1e-6) {
+      warning("Frequency is only fitted in the interval [1e-6, 1e6]")
+      Results$Status <- 1
+      Results$Comment <- "Frequency is only fitted in the interval [1e-6, 1e6]"
+    } else {
+      Results$Status <- 0
+      Results$Comment <- "OK"
+    }
+  } else if (severity_distribution == "GenPareto") {
+
+    target_GP <- function(FQ, alpha_ini, alpha_tail) {
+      result <- 0
+      if (nrow(df_layers) > 0) {
+        result <- result + sum((FQ * GenPareto_Layer_Mean(df_layers$limit, df_layers$attachment_point, alpha_ini = alpha_ini, alpha_tail = alpha_tail, t = model_threshold) - df_layers$exp_loss)^2 / (df_layers$exp_loss)^2)
+      }
+      if (nrow(df_thresholds) > 0) {
+        result <- result + sum((FQ * (1 - pGenPareto(df_thresholds$threshold, alpha_ini = alpha_ini, alpha_tail = alpha_tail, t = model_threshold)) - df_thresholds$frequency)^2 / (df_thresholds$frequency)^2)
+      }
+      return(result)
+    }
+
+    if (nrow(df_layers) > 0 && is.infinite(max(df_layers$limit))) {
+      lb <- 1.01
+    } else {
+      lb <- 0.01
+    }
+    target_FQ_GP <- function(FQ) {
+      result <- NULL
+      try(result <- stats::optim(c(1.5, 1.5), function(x) target_GP(FQ, x[1], x[2]), lower = c(0.01, lb), upper = rep(alpha_max, 2), method = "L-BFGS-B"), silent = T)
+      if (is.null(result) || result$convergence > 0) {
+        return(Inf)
+      }
+      return(result$value)
+    }
+    result <- NULL
+    f <- Vectorize(target_FQ_GP)
+    if (TRUE) {
+      FQ_min <- 1e-4
+      if (nrow(df_layers) > 0) FQ_min <- max(FQ_min, df_layers$exp_loss / df_layers$limit)
+      if (nrow(df_thresholds) > 0) FQ_min <- max(FQ_min, df_thresholds$frequency)
+      FQ_max <- 1e4
+      for (i in 1:10) {
+        FQ_discrete <- exp(log(FQ_max / FQ_min) * (0:5) / 5) * FQ_min # range from FQ_min to FQ_max
+        f_discrete <- f(FQ_discrete)
+        FQ_min <- FQ_discrete[max(1, order(f_discrete)[1] - 1)]
+        FQ_max <- FQ_discrete[min(length(FQ_discrete), order(f_discrete)[1] + 1)]
+      }
+      Results$FQ <- FQ_discrete[order(f_discrete)[1]]
+    } else { # does not always work:
+      FQ_discrete <- exp(log(1e12) * (0:100) / 100) * 1e-6 # range from 1e-6 to 1e6
+      f_discrete <- f(FQ_discrete)
+      FQ_min <- FQ_discrete[max(1, order(f_discrete)[1] - 1)]
+      FQ_max <- FQ_discrete[min(length(FQ_discrete), order(f_discrete)[1] + 1)]
+      try(result <- stats::optim((FQ_min + FQ_max) / 2, target_FQ_GP, lower = FQ_min, upper = FQ_max, method = "Brent"), silent = T)
+      if (is.null(result) || result$convergence > 0) {
+        warning("No solution found.")
+        Results$Comment <- "No solution found."
+        Results$Status <- 2
+        return(Results)
+      }
+      Results$FQ <- result$par
+    }
+    Results$t <- model_threshold
+    result <- NULL
+    try(result <- stats::optim(c(1.5, 1.5), function(x) target_GP(Results$FQ, x[1], x[2]), lower = c(0.01, lb), upper = rep(alpha_max, 2), method = "L-BFGS-B"), silent = T)
+
+    if (is.null(result) || result$convergence > 0) {
+      warning("No solution found.")
+      Results$Comment <- "No solution found."
+      Results$Status <- 2
+      return(Results)
+    }
+    Results$alpha_ini <- result$par[1]
+    Results$alpha_tail <- result$par[2]
+    if (Results$FQ == 1e4 || Results$FQ == 1e-4) {
+      warning("Frequency is only fitted in the interval [1e-4, 1e4]")
+      Results$Status <- 1
+      Results$Comment <- "Frequency is only fitted in the interval [1e-4, 1e4]"
+    } else {
+      Results$Status <- 0
+      Results$Comment <- "OK"
+    }
   }
-
   return(Results)
-
 }
 
 

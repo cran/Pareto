@@ -1,3 +1,7 @@
+# Pareto 2.4.2
+
+* Added functionality for Pareto and GenPareto in Fit_References
+
 # Pareto 2.4.0
 
 * Improved functionality for maximum likelihood estimation
