@@ -3219,7 +3219,7 @@ PiecewisePareto_ML_Estimator_Alpha <- function(losses, t, truncation = NULL, tru
 
         survival_rt <- survival_t[index_rt] * (t[index_rt] / reporting_thresholds)^alpha[index_rt]
         survival_truncation <- survival_t[k+1]
-        density_losses <- survival_t[index_losses] * alpha[index_losses] / t[index_losses] * (t[index_losses] / losses)^alpha[index_losses]
+        density_losses <- survival_t[index_losses] * alpha[index_losses] / t[index_losses] * (t[index_losses] / losses)^(alpha[index_losses] + 1)
 
         - sum(weights * (
                           log(density_losses) - log(survival_rt - survival_truncation)
@@ -3239,7 +3239,7 @@ PiecewisePareto_ML_Estimator_Alpha <- function(losses, t, truncation = NULL, tru
         survival_losses <- survival_t[index_losses] * (t[index_losses] / losses)^alpha[index_losses]
         survival_rt <- survival_t[index_rt] * (t[index_rt] / reporting_thresholds)^alpha[index_rt]
         survival_truncation <- survival_t[k+1]
-        density_losses <- survival_t[index_losses] * alpha[index_losses] / t[index_losses] * (t[index_losses] / losses)^alpha[index_losses]
+        density_losses <- survival_t[index_losses] * alpha[index_losses] / t[index_losses] * (t[index_losses] / losses)^(alpha[index_losses] + 1)
 
         - sum(weights * ifelse(is.censored,
                                log(survival_losses - survival_truncation) - log(survival_rt - survival_truncation),
@@ -3276,7 +3276,7 @@ PiecewisePareto_ML_Estimator_Alpha <- function(losses, t, truncation = NULL, tru
 #' \item \code{'lnorm'} for lognormal distribution (arguments: \code{meanlog}, \code{sdlog})
 #' \item \code{'norm'} for normal distribution (arguments: \code{mean}, \code{sd})
 #' \item \code{'gamma'} for gamma distribution (arguments: \code{shape}, \code{rate}, \code{scale})
-#' \item \code{'weibull'} for weibull distribution (arguments: \code{shape}, \code{scale})
+#' \item \code{'weibull'} for Weibull distribution (arguments: \code{shape}, \code{scale})
 #' \item \code{'exp'} for exponential distribution (arguments: \code{rate})
 #' \item \code{'Pareto'} for Pareto distribution (arguments: \code{t}, \code{alpha}, \code{truncation = NULL})
 #' \item \code{'GenPareto'} for exp distribution (arguments: \code{t}, \code{alpha_ini}, \code{alpha_tail}, \code{truncation = NULL})
@@ -4325,7 +4325,7 @@ rPanjer <- function(n, mean, dispersion) {
 #' @param Covers Numeric vector. Vector containing the covers of the layers from the wishlist.
 #' @param Attachment_Points Numeric vector. Vector containing the attachment points of the layers from the wishlist.
 #' @param Expected_Layer_Losses Numeric vector. Vector containing the expected losses of the layers from the wishlist.
-#' @param Thresholds Numeric vector. Contains the thresholds from the whishlist for which excess frequencies are given.
+#' @param Thresholds Numeric vector. Contains the thresholds from the wishlist for which excess frequencies are given.
 #' @param Frequencies Numeric vector. Expected frequencies excess the \code{Thresholds} from the wishlist.
 #' @param model_threshold Numerical. Lowest threshold of the fitted piecewise Pareto distribution.
 #' @param default_alpha Numerical. Default alpha for situations where an alpha has to be selected.
