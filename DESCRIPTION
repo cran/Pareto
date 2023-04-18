@@ -1,7 +1,7 @@
 Package: Pareto
 Type: Package
 Title: The Pareto, Piecewise Pareto and Generalized Pareto Distribution
-Version: 2.4.4
+Version: 2.4.5
 Authors@R: person("Ulrich", "Riegel", email = "ulrich.riegel@gmx.de", role = c("aut", "cre"))
 Description: Utilities for the Pareto, piecewise Pareto and generalized Pareto distribution
     that are useful for reinsurance pricing. In particular, the package provides
@@ -19,8 +19,8 @@ Suggests: testthat, knitr, rmarkdown, lpSolve
 URL: https://github.com/ulrichriegel/Pareto#pareto
 Language: en-US
 NeedsCompilation: no
-Packaged: 2023-04-08 13:23:51 UTC; ulric
+Packaged: 2023-04-17 20:15:22 UTC; ulric
 Author: Ulrich Riegel [aut, cre]
 Maintainer: Ulrich Riegel <ulrich.riegel@gmx.de>
 Repository: CRAN
-Date/Publication: 2023-04-08 13:40:02 UTC
+Date/Publication: 2023-04-18 07:10:07 UTC

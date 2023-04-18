@@ -1,12 +1,12 @@
-543d4d20d76ac20b4e7a0205ee8fc486 *DESCRIPTION
+0d6e4b32f14ac6b92d49fe09ab302c3b *DESCRIPTION
 74b30340fd4149017dd774412917cc11 *NAMESPACE
-7f3bda4310b69be0bbbb6b76ba0ddb2c *NEWS.md
+a29eccf1863244e155a74a7a07e2d246 *NEWS.md
 0850467483fe8f7046e95b32719a00a9 *R/CollectiveModelMethods.R
 899c878e10298cb5cf1d79efe9f22983 *R/Documentation.R
 9656c38213fe90a198c5aee649800e0d *R/FitPP.R
 7f006a03a1209c84f61044afda52c568 *R/Functions.R
-2536e21f644521212192866653bbeda4 *R/PGPModel.R
-feff4253467d30bcc67f360feae8bfcc *R/PPPModel.R
+0f486dd0211ef244ecf3ab639520c4a9 *R/PGPModel.R
+28b688653e991df9543417a55bf2947b *R/PPPModel.R
 7f7be2a0a808f8fff4d2660eb5db50a3 *R/ValidationFunctions.R
 afe90ff189e460ac8ce9848ea1b2d67d *R/lp_functions.R
 0fb627102380d0e388e5603bb5dae849 *README.md
@@ -15,7 +15,7 @@ ece5921362482fdaf9b2b05b39b7171a *build/vignette.rds
 784d77745a39b82f155ab61d04717559 *data/Example1_EL.rda
 bfb622c1d72cfc5d9e92858711f9cdfb *inst/doc/Pareto.R
 40f7da7f7cf4af81c1fb653eba92a6cb *inst/doc/Pareto.Rmd
-8e94b41a33a702d07893d119a8c6b322 *inst/doc/Pareto.html
+4a27e38201fd10c8006a1a585ec65f07 *inst/doc/Pareto.html
 fe143020b3068ab8f37dc9068ee2f1bb *man/Example1_AP.Rd
 b91f3e2024f64d706147f24db108b16e *man/Example1_EL.Rd
 6ce1970a9b068c73ac713ed7e1b117a6 *man/Excess_Frequency.PGP_Model.Rd
@@ -74,8 +74,8 @@ e50d0b283fd12f396e17c03d268186e7 *man/is.PPP_Model.Rd
 b29c7bb6f0073cd0f0f87a66eb3f1d5c *man/pGenPareto.Rd
 e6164dd21daf64148beeaff157241cbf *man/pPareto.Rd
 166c499365a14081d1b8b499d1b2fa81 *man/pPiecewisePareto.Rd
-0d21380a0c7f5b5df632e0b768192959 *man/print.PGP_Model.Rd
-315b3f76cdbb749694f2b95df14a4942 *man/print.PPP_Model.Rd
+29593795102b51da7a3a0557d52254b8 *man/print.PGP_Model.Rd
+6b7c7a450b0307fb3a14e078881d8625 *man/print.PPP_Model.Rd
 f3ce50c41f9d804196daac21c2af4fa0 *man/qGenPareto.Rd
 8b574080e815cf341fa2be76b5c15de4 *man/qPareto.Rd
 f8d3f1835c0ad7048b0dc44e8794b331 *man/qPiecewisePareto.Rd
@@ -83,8 +83,8 @@ d102b1e9f6ba350d9c8b037844f6327c *man/rGenPareto.Rd
 693844088f355e762230b7edbe0556c6 *man/rPareto.Rd
 51070dc0ef6f3beffbe33340d5c96075 *man/rPiecewisePareto.Rd
 069eadbf83ec3a0e056829dd77e4fd3d *tests/testthat.R
-e93b4345c98c6bf1ac12333fead48071 *tests/testthat/test_functions_GenPareto.R
+9e68b21857d0d1cfe2c0911bdb415339 *tests/testthat/test_functions_GenPareto.R
 f9266b5042a615fb8c097840e66859cd *tests/testthat/test_functions_PPP_Model.R
-eb801c2db1d75e32c3dcf12928f998f7 *tests/testthat/test_functions_Pareto.R
+a9fd506abcb62915480654924bd522c2 *tests/testthat/test_functions_Pareto.R
 a04da8ad2faca5c298ef7992f372bb75 *tests/testthat/test_functions_PiecewisePareto.R
 40f7da7f7cf4af81c1fb653eba92a6cb *vignettes/Pareto.Rmd
